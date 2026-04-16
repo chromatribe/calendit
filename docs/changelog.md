@@ -1,5 +1,13 @@
 # 更新履歴 (Changelog)
 
+## v1.0.2 — 2026-04-16
+
+### 変更
+- `docs/changelog.md` の品質基準の表現を会社名に依存しない表記に修正（テストベンダー水準 / ISTQB準拠）
+- `docs/commands.md` に `config delete-context` コマンドの説明と例を追加
+
+---
+
 ## v1.0.1 — 2026-04-16
 
 ### 追加
