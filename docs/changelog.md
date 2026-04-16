@@ -27,7 +27,7 @@
 - **`config`** — 認証情報・コンテキストの管理、診断コマンド（`config check`）
 
 #### 品質・設計
-- バルテス品質基準（EP / BVA / DT / ST / EG）に基づく自動テスト設計
+- テストベンダー水準（ISTQB準拠）の品質基準（EP / BVA / DT / ST / EG）に基づく自動テスト設計
 - 仕様書（`spec/spec.md`）とテストケース（`docs/tests.md`）のトレーサビリティマトリクス
 - 構造化ログ（タイムスタンプ・モジュールラベル付き）
 - カスタムエラー階層（`CalendarError` / `ConfigError` / `AuthError` / `ValidationError` / `ApiError`）
