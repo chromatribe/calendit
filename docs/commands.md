@@ -95,6 +95,23 @@ calendit config set-context work --service google --calendar primary
 
 # 個人の Outlook カレンダーを "home" コンテキストとして登録
 calendit config set-context home --service outlook --calendar primary
+
+# 特定カレンダーIDを指定して登録
+calendit config set-context lnw \
+  --service google \
+  --calendar "c_xxxx@group.calendar.google.com" \
+  --account "yourname@example.com"
+```
+
+### `config delete-context <name>`
+
+登録済みのコンテキストを削除します。
+
+**使用例:**
+
+```bash
+# "work" コンテキストを削除
+calendit config delete-context work
 ```
 
 ---
