@@ -1,18 +1,38 @@
 {
-  "name": "calendaredit",
+  "name": "calendit",
   "version": "1.0.0",
-  "description": "",
+  "description": "Terminal-based calendar management tool for Google Calendar and Outlook via CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "calendit": "./bin/cli.js"
+    "calendit": "bin/cli.js"
   },
   "scripts": {
     "dev": "node --loader ts-node/esm src/index.ts",
     "build": "tsc",
+    "prepare": "npm run build",
     "test": "node --loader ts-node/esm src/test_runner.ts"
   },
-  "keywords": [],
+  "keywords": [
+    "calendar",
+    "google-calendar",
+    "outlook",
+    "microsoft-graph",
+    "cli",
+    "terminal",
+    "productivity"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chromatribe/calendit.git"
+  },
+  "homepage": "https://github.com/chromatribe/calendit#readme",
+  "bugs": {
+    "url": "https://github.com/chromatribe/calendit/issues"
+  },
   "author": "chromatribe - s.ohara <ivis.klain@chromatri.be>",
   "license": "ISC",
   "dependencies": {
