@@ -124,6 +124,23 @@ calendit config set-context invalid --service fax --calendar "primary"
 Service must be 'google' or 'outlook'.
 ```
 
+### TC-CTX-DEL-01 [EP]: コンテキスト削除（正常）
+```sh
+calendit config set-context tmp-ctx --service google --calendar "primary"
+calendit config delete-context tmp-ctx
+```
+```expect
+Context 'tmp-ctx' deleted.
+```
+
+### TC-CTX-DEL-02 [EG]: 存在しないコンテキスト削除
+```sh
+calendit config delete-context not-existing-ctx
+```
+```expect-fail
+Context 'not-existing-ctx' が見つかりません。
+```
+
 ### TC-CTX-03 [EG]: 未定義コンテキスト参照
 ```sh
 calendit query --set notfound --dry-run

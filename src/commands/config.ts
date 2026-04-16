@@ -91,6 +91,22 @@ export function registerConfigCommands(program: Command, deps: CommandDeps) {
     });
 
   configCmd
+    .command("delete-context <name>")
+    .description("Delete a named context")
+    .action(async (name: string) => {
+      await loadConfigIfExists(deps.config);
+      const deleted = deps.config.deleteContext(name);
+      if (!deleted) {
+        throw new ValidationError(
+          `Context '${name}' が見つかりません。`,
+          `登録済みのコンテキストを確認するには \`calendit config check\` を実行してください。`,
+        );
+      }
+      await deps.config.save();
+      logger.info(`Context '${name}' deleted.`);
+    });
+
+  configCmd
     .command("set-context <name>")
     .description("Set a named context (e.g. work, hobby)")
     .requiredOption("--service <service>", "google or outlook")

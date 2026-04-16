@@ -73,6 +73,12 @@ export class ConfigManager {
     this.config.contexts[name] = context;
   }
 
+  deleteContext(name: string): boolean {
+    if (!(name in this.config.contexts)) return false;
+    delete this.config.contexts[name];
+    return true;
+  }
+
   getAllContexts() {
     return this.config.contexts;
   }

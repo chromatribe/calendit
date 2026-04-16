@@ -1,6 +1,6 @@
 {
   "name": "calendit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Terminal-based calendar management tool for Google Calendar and Outlook via CLI",
   "type": "module",
   "main": "dist/index.js",
