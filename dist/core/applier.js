@@ -1,0 +1,140 @@
+import { ValidationError } from "./errors.js";
+import { logger } from "./logger.js";
+export class Applier {
+    service;
+    constructor(service) {
+        this.service = service;
+    }
+    /**
+     * カレンダーに予定を適用する
+     */
+    async apply(calendarId, inputEvents, timerange, options = {}) {
+        // 1. バリデーション
+        const errors = [];
+        const seenIds = new Set();
+        for (let i = 0; i < inputEvents.length; i++) {
+            const event = inputEvents[i];
+            const label = event.summary || `Event #${i + 1}`;
+            if (event.id) {
+                if (seenIds.has(event.id)) {
+                    errors.push(`Duplicate ID found: ${event.id} (${label})`);
+                }
+                seenIds.add(event.id);
+            }
+            if (event.start && event.end) {
+                if (new Date(event.start) >= new Date(event.end)) {
+                    errors.push(`Invalid time range: ${label} (${event.start} - ${event.end})`);
+                }
+            }
+        }
+        if (errors.length > 0) {
+            throw new ValidationError(`入力イベントに不整合があります:\n${errors.map((e) => `  - ${e}`).join("\n")}`, "重複ID・開始終了時刻の逆転を修正してから再実行してください。");
+        }
+        let range = timerange;
+        if (!range && inputEvents.length > 0) {
+            // 入力された予定から期間を自動計算
+            let minStart = Infinity;
+            let maxEnd = -Infinity;
+            for (const event of inputEvents) {
+                if (event.start) {
+                    const s = new Date(event.start).getTime();
+                    if (s < minStart)
+                        minStart = s;
+                }
+                if (event.end) {
+                    const e = new Date(event.end).getTime();
+                    if (e > maxEnd)
+                        maxEnd = e;
+                }
+            }
+            if (minStart !== Infinity && maxEnd !== -Infinity) {
+                // 当日の開始・終了までバッファを持たせる
+                const start = new Date(minStart);
+                start.setHours(0, 0, 0, 0);
+                const end = new Date(maxEnd);
+                end.setHours(23, 59, 59, 999);
+                range = { start, end };
+                logger.info(`Auto-detected sync range: ${range.start.toISOString()} to ${range.end.toISOString()}`);
+            }
+        }
+        if (!range) {
+            if (options.sync) {
+                const now = new Date();
+                const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+                range = { start, end };
+                logger.info(`Sync range fallback applied: ${start.toISOString()} to ${end.toISOString()}`);
+            }
+        }
+        if (!range) {
+            // 範囲を特定できない場合は空の実行とする（安全のため全削除は行わない）
+            return { created: [], updated: [], deleted: [] };
+        }
+        // 現在の予定を取得
+        const existingEvents = await this.service.listEvents(calendarId, range.start, range.end);
+        const existingMap = new Map(existingEvents.map((e) => [e.id, e]));
+        const results = {
+            created: [],
+            updated: [],
+            deleted: [],
+        };
+        // 1. 追加・更新
+        for (const input of inputEvents) {
+            if (input.id && existingMap.has(input.id)) {
+                // 更新
+                const existing = existingMap.get(input.id);
+                const diffs = [];
+                if (input.summary && input.summary !== existing.summary) {
+                    diffs.push(`Summary: "${existing.summary}" -> "${input.summary}"`);
+                }
+                if (input.start && input.start !== existing.start) {
+                    diffs.push(`Start: ${existing.start} -> ${input.start}`);
+                }
+                if (input.end && input.end !== existing.end) {
+                    diffs.push(`End: ${existing.end} -> ${input.end}`);
+                }
+                if (diffs.length > 0) {
+                    if (options.dryRun) {
+                        logger.info(`[Dry Run] Update: ${input.summary || existing.summary} (${input.id})`);
+                        diffs.forEach(d => logger.info(`  └ ${d}`));
+                    }
+                    else {
+                        await this.service.updateEvent(calendarId, input.id, input);
+                    }
+                    results.updated.push({ input, existing, diffs });
+                }
+                existingMap.delete(input.id); // 処理済みとして削除
+            }
+            else {
+                // 新規作成
+                if (options.dryRun) {
+                    logger.info(`[Dry Run] Create: ${input.summary}`);
+                }
+                else {
+                    // 型の整合性のために必要な情報を補完
+                    await this.service.createEvent(calendarId, {
+                        summary: input.summary || "(No Title)",
+                        start: input.start,
+                        end: input.end,
+                        location: input.location,
+                        description: input.description,
+                    });
+                }
+                results.created.push(input);
+            }
+        }
+        // 2. 削除 (Sync モード時)
+        if (options.sync) {
+            for (const [id, event] of existingMap.entries()) {
+                if (options.dryRun) {
+                    logger.info(`[Dry Run] Delete: ${event.summary} (${id})`);
+                }
+                else {
+                    await this.service.deleteEvent(calendarId, id);
+                }
+                results.deleted.push(event);
+            }
+        }
+        return results;
+    }
+}
