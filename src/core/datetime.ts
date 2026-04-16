@@ -10,6 +10,7 @@ import { logger } from "./logger.js";
  * - tomorrow HH:mm
  * - HH:mm
  * - YYYY-MM-DD
+ * - YYYY-MM-DD HH:mm
  * - ISO 8601
  */
 export function parseDateTime(input: string | undefined, defaultOffset: number = 0): Date {
@@ -40,12 +41,16 @@ export function parseDateTime(input: string | undefined, defaultOffset: number =
   } else if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
     const [y, m, d] = raw.split("-").map(Number);
     date = new Date(y, m - 1, d);
+  } else if (/^\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}$/.test(raw)) {
+    // YYYY-MM-DD HH:mm (スペース区切り)
+    const [datePart, timePart] = raw.split(/\s+/);
+    date = new Date(`${datePart}T${timePart}:00`);
   } else if (/^\d{4}-\d{2}-\d{2}T/.test(raw)) {
     date = new Date(raw);
   } else {
     throw new ValidationError(
       `日時フォーマットが不正です: "${input}"`,
-      "例: `today 10:00`, `tomorrow`, `2026-04-16`, `2026-04-16T10:00:00+09:00`",
+      "例: `today 10:00`, `tomorrow`, `2026-04-16`, `2026-04-16 10:00`, `2026-04-16T10:00:00+09:00`",
     );
   }
 

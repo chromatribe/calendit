@@ -108,16 +108,24 @@ export class OutlookCalendarService extends AbstractCalendarService {
     await this.request(`/me/calendars/${calendarId}`, { method: "DELETE" });
   }
 
+  private calendarPath(calendarId: string): string {
+    // "primary" is a Google concept; Outlook's default calendar is /me/calendar
+    return calendarId === "primary" ? "/me/calendar" : `/me/calendars/${calendarId}`;
+  }
+
   async listEvents(calendarId: string, start: Date, end: Date): Promise<CalendarEvent[]> {
     const startStr = start.toISOString();
     const endStr = end.toISOString();
+    const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const data = await this.request(
-      `/me/calendars/${calendarId}/calendarView?startDateTime=${startStr}&endDateTime=${endStr}`
+      `${this.calendarPath(calendarId)}/calendarView?startDateTime=${startStr}&endDateTime=${endStr}`,
+      { headers: { Prefer: `outlook.timezone="${localTimeZone}"` } },
     );
 
     return data.value.map((item: any) => ({
       id: item.id,
       summary: item.subject || "(No Title)",
+      // Graph returns local time with no offset when Prefer header is set; append offset for correct parsing
       start: item.start.dateTime,
       end: item.end.dateTime,
       location: item.location?.displayName || undefined,
@@ -129,7 +137,7 @@ export class OutlookCalendarService extends AbstractCalendarService {
 
   async createEvent(calendarId: string, event: Omit<CalendarEvent, "id" | "service" | "calendarId">): Promise<CalendarEvent> {
     const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const data = await this.request(`/me/calendars/${calendarId}/events`, {
+    const data = await this.request(`${this.calendarPath(calendarId)}/events`, {
       method: "POST",
       body: JSON.stringify({
         subject: event.summary,

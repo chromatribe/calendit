@@ -13,7 +13,7 @@
     "test": "node --loader ts-node/esm src/test_runner.ts"
   },
   "keywords": [],
-  "author": "",
+  "author": "chromatribe - s.ohara <ivis.klain@chromatri.be>",
   "license": "ISC",
   "dependencies": {
     "@azure/msal-node": "^3.8.10",

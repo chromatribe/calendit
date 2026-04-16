@@ -26,6 +26,7 @@ async function runCommand(rawCmd: string, cliCmdBase: string, testConfigDir: str
   try {
     const { stdout, stderr } = await execAsync(cmd, {
       maxBuffer: 10 * 1024 * 1024,
+      timeout: 30000,
       env: {
         ...process.env,
         CALENDIT_MOCK: "true",
@@ -71,11 +72,16 @@ async function executeTestCase(tc: TestCase, cliCmdBase: string, testConfigDir: 
 
 function isStatefulTestCase(tc: TestCase): boolean {
   const cmd = tc.rawCmd;
+  if (tc.id.startsWith("TC-LIVE-")) {
+    if (process.env.CALENDIT_RUN_LIVE !== "true") {
+      return false;
+    }
+    return true;
+  }
   return (
     cmd.includes("config set-") ||
     cmd.includes("auth login") ||
     cmd.includes("apply --in tests/data/empty.md --sync") ||
-    cmd.includes("TC-LIVE") ||
     cmd.includes("\n")
   );
 }
@@ -141,20 +147,27 @@ async function runTests() {
 
     const flushParallelBatch = async () => {
       if (parallelBatch.length === 0) return;
-      const settledResults = await Promise.allSettled(
-        parallelBatch.map(async (tc) => ({
-          tc,
-          result: await executeTestCase(tc, cliCmdBase, testConfigDir),
-        })),
-      );
+      const CONCURRENCY = 5;
+      const allResults: Array<{ tc: TestCase; result: TestResult }> = [];
 
-      for (const settled of settledResults) {
-        if (settled.status === "rejected") {
-          failed++;
-          console.error(`   ❌ Execution Error: ${settled.reason}`);
-          continue;
+      for (let i = 0; i < parallelBatch.length; i += CONCURRENCY) {
+        const chunk = parallelBatch.slice(i, i + CONCURRENCY);
+        const chunkResults = await Promise.allSettled(
+          chunk.map(async (tc) => ({
+            tc,
+            result: await executeTestCase(tc, cliCmdBase, testConfigDir),
+          })),
+        );
+        for (const settled of chunkResults) {
+          if (settled.status === "fulfilled") allResults.push(settled.value);
+          else {
+            failed++;
+            console.error(`   ❌ Execution Error: ${settled.reason}`);
+          }
         }
-        const { tc, result } = settled.value;
+      }
+
+      for (const { tc, result } of allResults) {
         console.log(`\n[${tc.id}] ${tc.name}`);
         console.log(`   Cmd: ${tc.rawCmd}`);
         if (result.passed) {
@@ -171,6 +184,12 @@ async function runTests() {
     };
 
     for (const tc of testCases) {
+      if (tc.id.startsWith("TC-LIVE-") && process.env.CALENDIT_RUN_LIVE !== "true") {
+        console.log(`\n[${tc.id}] ${tc.name}`);
+        console.log("   ⏭ Skipped: set CALENDIT_RUN_LIVE=true to run live tests.");
+        continue;
+      }
+
       if (!isStatefulTestCase(tc)) {
         parallelBatch.push(tc);
         continue;

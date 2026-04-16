@@ -42,14 +42,6 @@ export async function getServiceForContext(deps: CommandDeps, contextName?: stri
     throw err;
   }
 
-  if (process.env.CALENDIT_MOCK === "true") {
-    return {
-      service: new MockCalendarService(contextName || "mock"),
-      calendarId: "primary",
-      serviceType: "mock",
-    };
-  }
-
   const ctx = contextName
     ? config.getContext(contextName)
     : { service: "google" as const, calendarId: "primary", accountId: undefined };
@@ -61,6 +53,14 @@ export async function getServiceForContext(deps: CommandDeps, contextName?: stri
     );
   }
 
+  if (process.env.CALENDIT_MOCK === "true") {
+    return {
+      service: new MockCalendarService(ctx.service),
+      calendarId: ctx.calendarId,
+      serviceType: "mock",
+    };
+  }
+
   if (ctx.service === "google") {
     const creds = config.getGoogleCreds();
     if (!creds) {
@@ -69,7 +69,9 @@ export async function getServiceForContext(deps: CommandDeps, contextName?: stri
         "`calendit config set-google --id <id> --secret <secret>` を実行してください。",
       );
     }
-    const oauth2Client = await auth.getGoogleAuth(creds.id, creds.secret, ctx.accountId);
+    // Token file is keyed by contextName (used during `auth login --set`), falling back to accountId
+    const tokenKey = contextName || ctx.accountId;
+    const oauth2Client = await auth.getGoogleAuth(creds.id, creds.secret, tokenKey);
     return {
       service: new GoogleCalendarService(oauth2Client),
       calendarId: ctx.calendarId,
@@ -87,7 +89,10 @@ export async function getServiceForContext(deps: CommandDeps, contextName?: stri
 
   const pca = await auth.getOutlookClient(creds.id, creds.tenantId);
   const accounts = await pca.getTokenCache().getAllAccounts();
-  const account = ctx.accountId ? accounts.find((a) => a.homeAccountId === ctx.accountId) : accounts[0];
+  // Match by username (email) or homeAccountId; fall back to first account
+  const account = ctx.accountId
+    ? (accounts.find((a) => a.username === ctx.accountId || a.homeAccountId === ctx.accountId) ?? accounts[0])
+    : accounts[0];
 
   return {
     service: new OutlookCalendarService(pca, account),

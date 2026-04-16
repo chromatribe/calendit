@@ -40,6 +40,10 @@ export function registerCalCommands(program: Command, deps: CommandDeps) {
       }
 
       const { service } = await getServiceForContext(deps, options.set);
+      const calendars = await service.listCalendars();
+      if (!calendars.some((c) => c.id === id)) {
+        throw new ValidationError(`Calendar '${id}' not found.`);
+      }
       if (!options.force) {
         const { Confirm } = (await import("enquirer") as any).default;
         const prompt = new Confirm({

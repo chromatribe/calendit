@@ -88,3 +88,7 @@ npm test
 ## 📄 ライセンス
 
 ISC License. 詳細は [LICENSE](LICENSE) を参照してください。
+
+## 👤 著者
+
+**chromatribe - s.ohara** (<ivis.klain@chromatri.be>)

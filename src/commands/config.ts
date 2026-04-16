@@ -57,6 +57,40 @@ export function registerConfigCommands(program: Command, deps: CommandDeps) {
     });
 
   configCmd
+    .command("check")
+    .description("Validate current configuration and show diagnostic summary")
+    .action(async () => {
+      await loadConfigIfExists(deps.config);
+
+      const googleCreds = deps.config.getGoogleCreds();
+      const outlookCreds = deps.config.getOutlookCreds();
+      const contexts = deps.config.getAllContexts();
+      const contextEntries = Object.entries(contexts);
+
+      const mask = (value: string) => (value.length <= 8 ? value : `${value.slice(0, 3)}...${value.slice(-3)}`);
+
+      logger.info("[CONFIG CHECK]");
+      logger.info(
+        `  Google credentials : ${
+          googleCreds ? `OK (id: ${mask(googleCreds.id)})` : "NOT SET (run: calendit config set-google --id <id> --secret <secret>)"
+        }`,
+      );
+      logger.info(
+        `  Outlook credentials: ${
+          outlookCreds ? `OK (id: ${mask(outlookCreds.id)})` : "NOT SET (run: calendit config set-outlook --id <id>)"
+        }`,
+      );
+      logger.info(
+        `  Contexts           : ${
+          contextEntries.length > 0
+            ? contextEntries.map(([name, ctx]) => `${name} (${ctx.service}/${ctx.calendarId})`).join(", ")
+            : "none"
+        }`,
+      );
+      logger.info("  Config file        : ~/.config/calendit/config.json (or CALENDIT_CONFIG_DIR override)");
+    });
+
+  configCmd
     .command("set-context <name>")
     .description("Set a named context (e.g. work, hobby)")
     .requiredOption("--service <service>", "google or outlook")
@@ -64,6 +98,9 @@ export function registerConfigCommands(program: Command, deps: CommandDeps) {
     .option("--account <id>", "Custom account identifier for tokens")
     .action(async (name: string, options: { service: "google" | "outlook"; calendar: string; account?: string }) => {
       await loadConfigIfExists(deps.config);
+      if (options.service !== "google" && options.service !== "outlook") {
+        throw new ValidationError("Service must be 'google' or 'outlook'.");
+      }
       deps.config.setContext(name, {
         service: options.service,
         calendarId: options.calendar,

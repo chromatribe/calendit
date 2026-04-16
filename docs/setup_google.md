@@ -30,11 +30,14 @@
 ターミナルで以下のコマンドを実行して、ダウンロードした JSON ファイルを `calendit` に読み込ませます。
 
 ```bash
-# JSONファイルを指定して設定
+# JSON ファイルを指定して設定（推奨）
 calendit config set-google --file ~/Downloads/credentials.json
+
+# または、クライアントID とシークレットを直接入力
+calendit config set-google --id "123.apps.googleusercontent.com" --secret "GOCSPX-xxxx"
 ```
 
-実行後、セキュリティのために元の JSON ファイルを削除するか確認されます。`y` を入力すると削除されます。
+`--file` オプションを使用した場合、設定完了後に元の JSON ファイルをセキュリティのために削除するか確認されます。`y` を入力すると削除されます。
 
 ## 手順 5: ログイン
 

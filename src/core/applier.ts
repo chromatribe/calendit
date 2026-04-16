@@ -119,10 +119,11 @@ export class Applier {
         if (input.summary && input.summary !== existing.summary) {
           diffs.push(`Summary: "${existing.summary}" -> "${input.summary}"`);
         }
-        if (input.start && input.start !== existing.start) {
+        // Compare as timestamps to avoid false diffs from timezone format differences
+        if (input.start && new Date(input.start).getTime() !== new Date(existing.start).getTime()) {
           diffs.push(`Start: ${existing.start} -> ${input.start}`);
         }
-        if (input.end && input.end !== existing.end) {
+        if (input.end && new Date(input.end).getTime() !== new Date(existing.end).getTime()) {
           diffs.push(`End: ${existing.end} -> ${input.end}`);
         }
 

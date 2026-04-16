@@ -4,6 +4,7 @@ import { formatInTimeZone } from "date-fns-tz";
 import { Formatter } from "../core/formatter.js";
 import { parseDateTime } from "../core/datetime.js";
 import { CommandDeps, getServiceForContext } from "./shared.js";
+import { ValidationError } from "../core/errors.js";
 import { logger } from "../core/logger.js";
 
 export function registerQueryCommand(program: Command, deps: CommandDeps) {
@@ -39,6 +40,10 @@ export function registerQueryCommand(program: Command, deps: CommandDeps) {
       } else {
         start = parseDateTime(options.start);
         end = options.end ? parseDateTime(options.end) : new Date(start.getTime() + 24 * 60 * 60 * 1000);
+      }
+
+      if (end <= start) {
+        throw new ValidationError("Invalid time range: end must be after start.");
       }
 
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;

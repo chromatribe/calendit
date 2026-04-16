@@ -1,1 +1,6 @@
 node_modules
+dist/
+.DS_Store
+*.csv
+.cursor/debug-*.log
+tests/data/temp_test.*
