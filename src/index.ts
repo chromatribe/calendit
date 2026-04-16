@@ -1,8 +1,12 @@
 import { Command } from "commander";
+import { createRequire } from "module";
 import { AuthManager } from "./core/auth.js";
 import { ConfigManager } from "./core/config.js";
 import { ApiError, AuthError, CalendarError, ConfigError, ValidationError } from "./core/errors.js";
 import { logger, setDebugDump, setLogLevel } from "./core/logger.js";
+
+const require = createRequire(import.meta.url);
+const { version } = require("../package.json");
 import { registerAuthCommands } from "./commands/auth.js";
 import { registerConfigCommands } from "./commands/config.js";
 import { registerQueryCommand } from "./commands/query.js";
@@ -19,7 +23,7 @@ const deps = {
 program
   .name("calendit")
   .description("Terminal-based Calendar Management Tool")
-  .version("2026-0416-01.02")
+  .version(version)
   .option("--verbose", "Enable verbose debug logs", false)
   .option("--debug-dump <file>", "Write all logs to a file");
 
