@@ -1,0 +1,107 @@
+---
+description: calendit CLI を使って Google カレンダーを操作するルール
+globs:
+  - "**/*.md"
+  - "**/*.json"
+alwaysApply: false
+---
+
+# calendit - Google カレンダー操作ガイド
+
+## セットアップ状況
+
+このプロジェクトでは `calendit` CLI を使って Google カレンダーを操作します。
+
+### 現在の設定コンテキスト
+
+- **google-main**: Google カレンダー（primary）
+
+設定確認コマンド：
+```bash
+calendit config check
+```
+
+---
+
+## 基本コマンド
+
+### 予定の取得（query）
+
+```bash
+# 今日の予定
+calendit query --set google-main --start today --format md
+
+# 期間指定
+calendit query --set google-main --start today --end 7d --format md
+
+# ファイルに保存
+calendit query --set google-main --start today --end 7d --format md --out schedule.md
+```
+
+### 予定の追加（add）
+
+```bash
+calendit add --set google-main \
+  --summary "予定タイトル" \
+  --start "2026-05-01 10:00" \
+  --end "2026-05-01 11:00" \
+  --description "詳細説明" \
+  --dry-run  # 確認用。問題なければ --dry-run を外す
+```
+
+### Markdownファイルから一括適用（apply）
+
+```bash
+# 確認（ドライラン）
+calendit apply --set google-main --in schedule.md --dry-run
+
+# 実際に適用
+calendit apply --set google-main --in schedule.md
+```
+
+---
+
+## Markdown フォーマット
+
+```markdown
+# 予定一覧
+
+## 2026-05-01
+- [ ] **タイトル** (10:00 - 11:00) (ID: イベントID)
+  - 説明文
+
+- [ ] **新規追加**（IDなし） (14:00 - 15:00)
+```
+
+- **ID あり** → 既存イベントの更新
+- **ID なし** → 新規作成
+
+---
+
+## 日時フォーマット
+
+| 形式 | 例 |
+|---|---|
+| 相対指定 | `today`, `tomorrow`, `7d` |
+| 時刻付き | `today 10:00`, `tomorrow 14:30` |
+| 日付 | `2026-05-01` |
+| 日時 | `2026-05-01 10:00` |
+| ISO 8601 | `2026-05-01T10:00:00+09:00` |
+
+---
+
+## 初回セットアップ（未設定の場合）
+
+```bash
+# 1. Google認証情報を登録
+calendit config set-google --file "/path/to/client_secret_xxx.json"
+
+# 2. コンテキスト作成
+calendit config set-context google-main --service google --calendar primary --account yourname@gmail.com
+
+# 3. OAuth認証（ブラウザが開く）
+calendit auth login google --set google-main
+
+# 4. 動作確認
+calendit query --set google-main --start today --format md
+```
