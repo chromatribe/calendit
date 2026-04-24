@@ -30,3 +30,7 @@
 
 - **Flow:** [docs/ux-evaluation.md](docs/ux-evaluation.md) — `npm test` まで緑にしてから `npm run ux:link` で `calendit` を手元のグローバルに載せ替え、操作感を試す。  
 - **Pack sanity:** `npm run pack:check`（`prepack` がテスト付き — 公開 tarball を作る前の確認用）。
+
+## Publishing to npm
+
+- **手順:** [docs/publishing.md](docs/publishing.md)（`npm login` → `npm test` / `prepack` → `npm publish`）。

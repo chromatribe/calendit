@@ -52,15 +52,22 @@ node --version
 
 ### 1.3 `calendit` を手元に用意する
 
-**どれか一つ**で足ります。多くの方は（開発や Cursor で触る方は）**A**、**npm に公開版がある場合**は **B** です。
+**まずは次の一択** — パッケージが [npm](https://www.npmjs.com/package/calendit) にあるなら、**いちばん早い**のはグローバル導入です。手順の**短い版**は [install.md](./install.md) も参照してください。
+
+```bash
+npm install -g calendit
+calendit --version
+```
+
+以降、ソースを触る・別の入れ方をする場合の**どれか一つ**で足ります。開発でソースを扱う場合は**下表の B** など、**npm 以外**の入れ方を選びます。
 
 | 方法 | 向いている人 | 要約 |
 |------|--------------|------|
-| **A. リポジトリをクローン** | ソースが GitHub などにある。AI やドキュメントが示す `calendit` フォルダがある。 | フォルダの中で `npm install` → `npm run build`。これで `calendit` は **`node パス/dist/index.js` の形**で起動するか、後述のエイリアスを付ける。 |
-| **B. グローバル `npm install`** | パッケージが [npm レジストリ](https://www.npmjs.com/) に出ている。 | `npm install -g calendit` のあと、どこでも `calendit` と打てることが多い。 |
-| **C. 圧縮版を展開** | 配布 ZIP などの場合。 | 同梱の `README` に従い、通常は A と同様に `npm install` やビルドがある。 |
+| **A. グローバル `npm install`（推奨・上記）** | まず使ってみる、npm から入れたい。 | `npm install -g calendit` のあと、どこでも `calendit` と打てることが多い。 |
+| **B. リポジトリをクローン** | ソースが GitHub などにある。AI やドキュメントが示す `calendit` フォルダがある。 | フォルダの中で `npm install` → `npm run build`。これで `calendit` は **`node パス/dist/index.js` の形**で起動するか、後述のエイリアスを付ける。 |
+| **C. 圧縮版を展開** | 配布 ZIP などの場合。 | 同梱の `README` に従い、通常は B と同様に `npm install` やビルドがある。 |
 
-**A でリポジトリのルートにいる**ときの定番の流れ（コピー用。パスは自分の `calendit` フォルドに合わせて変えてください）:
+**B でリポジトリのルートにいる**ときの定番の流れ（コピー用。パスは自分の `calendit` フォルドに合わせて変えてください）:
 
 ```bash
 cd /あなたの置き場所/calendit

@@ -1,6 +1,8 @@
 # calendit ドキュメント（目次）
 
 このフォルダには、**プログラムを書けない人でも順に読めば動かせる説明**から、**コマンドの網羅**、**AI（Cursor / Antigravity 等）向けの機械可読な情報**までを置いています。  
+**npm から入れただけ**の人は、まず **[install.md](./install.md)**（インストール → 次の一手）から。
+
 迷ったら **次の順番** で読んでください。
 
 ---
@@ -18,6 +20,7 @@
 
 | 文書 | 内容 |
 |------|------|
+| **[install.md](./install.md)** | **インストールから:** `npm install -g` → `calendit --version` → 次のドキュ（初回ラリー / getting-started への導線） |
 | **[beginner-guide-ja.md](./beginner-guide-ja.md)** | **非エンジニア向け（日本語）。** 導入（Node / 入手）→ 起動（バージョン確認）→ **登録**（Google / Outlook / この Mac）に厚めの分量。**再インストール・設定リセット**（§5）。全体の地図とよく詰まる所の表。詳細手順は下の `getting-started` から深掘り |
 | **[getting-started.md](./getting-started.md)** | **最重要（省略なし）。** Node の確認 → 取得 → インストール → ビルド → `calendit` の起動方法 → Google / Outlook / macOS のどれか一方を選んで API 登録 → ログイン → コンテキスト（カレンダー）登録 → 予定の取得・テスト → 自動テスト `npm test` の意味まで、**手順化** |
 
@@ -29,6 +32,7 @@
 | [setup_outlook.md](./setup_outlook.md) | Microsoft Entra ID でのアプリ登録・権限・リダイレクト URI |
 | [quickstart_google.md](./quickstart_google.md) | Google に絞った短い手順（グローバル `npm install -g` 利用者向け）。**初めての方は [getting-started.md](./getting-started.md) を先に読むことを推奨** |
 | [ux-evaluation.md](./ux-evaluation.md) | **UX 検証:** `git clone` → `npm ci` / `npm test` → `npm run ux:link` または `pack` 経由のグローバル試用 |
+| [publishing.md](./publishing.md) | **npm 公開:** `npm login` → `npm publish`（メンテナー・バージョンの注意） |
 
 ---
 

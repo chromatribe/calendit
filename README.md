@@ -5,6 +5,13 @@
 ライセンス: **ISC**（[LICENSE](LICENSE)）。  
 作者: **chromatribe - s.ohara**（ivis.klain@chromatri.be）
 
+## インストールから始める
+
+1. **Node.js 18 以上**を用意する。  
+2. ターミナルで **`npm install -g calendit`。**  
+3. **`calendit --version`** で動作確認。  
+4. カレンダー接続の手順は、リポ内の [docs/install.md](docs/install.md)（**インストール直後の次の一手**）を開く。npm 同梱に `docs` は**含まれない**ため、**Git なし**なら下記「初回ラリー」の URL から進めてかまいません。
+
 **npm でグローバル導入した直後（AI / Cursor の初回ラリー用）** — 同梱されない `docs/` を **GitHub 上の次の 1 本**から辿ってください（**リポジトリを clone していない場合も有効**）:
 
 - **初回ラリー（対話用プレイブック）:** <https://github.com/chromatribe/calendit/blob/main/docs/ai-onboarding-rally.md>
@@ -42,7 +49,8 @@
 
 | 順 | 文書 | 内容 |
 |----|------|------|
-| 0 | **初回ラリー**（npm `-g` では `docs` 未同梱）: **[ai-onboarding-rally.md on GitHub](https://github.com/chromatribe/calendit/blob/main/docs/ai-onboarding-rally.md)** | **AI / Cursor 向け:** Google / Outlook / macOS の**分岐**と、次のコマンドの幹。リポ clone なしで参照可 |
+| 0a | **[docs/install.md](docs/install.md)** | **インストールから:** `npm install -g` → 起動確認 → 次の一手（**clone して `docs` を手元に置ける人**向け） |
+| 0b | **初回ラリー**（npm `-g` では `docs` 未同梱）: **[ai-onboarding-rally.md on GitHub](https://github.com/chromatribe/calendit/blob/main/docs/ai-onboarding-rally.md)** | **AI / Cursor 向け:** Google / Outlook / macOS の**分岐**と、次のコマンドの幹。リポ clone なしで参照可 |
 | 1 | **[docs/README.md](docs/README.md)** | `docs/` 全体の目次（**リポジトリを手元に clone した人向け**相対パス） |
 | 1b | **[docs/beginner-guide-ja.md](docs/beginner-guide-ja.md)** | **非エンジニア向け（日本語）:** 導入 → 起動 → 登録に集中した全体の地図（詳細は `getting-started` へ） |
 | 2 | **[docs/getting-started.md](docs/getting-started.md)** | **省略なし:** Node の確認 → 取得 → ビルド → Google / Outlook / macOS のどれかでログイン → カレンダー登録 → 動作確認 → `npm test` |
