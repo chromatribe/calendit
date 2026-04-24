@@ -4,3 +4,22 @@ dist/
 *.csv
 .cursor/debug-*.log
 tests/data/temp_test.*
+native/eventkit-helper/.build/
+native/eventkit-bridge/.build/
+
+# local env (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# npm pack tarballs (e.g. UX / dry-run install tests)
+*.tgz
+
+# logs / coverage
+*.log
+npm-debug.log*
+coverage/
+
+# optional: Cursor plan files (remove this line if your team versions plans)
+.cursor/
+.agents/

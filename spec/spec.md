@@ -1,13 +1,13 @@
 # カレンダー操作CLIツール `calendit` 仕様書 (最新版)
 
 ## バージョン管理
-- **現在のバージョン**: `2026-0416-01.02` (Beta)
-- **最終更新日**: 2026-04-16
+- **現在のバージョン**: `2026.4.26` (Beta) — 製品表記。npm の `package.json#version` は [semver](https://semver.org/) 準拠
+- **最終更新日**: 2026-04-24
 
 ---
 
 ## 1. 概要
-`calendit` は、ターミナルから Google カレンダーおよび Outlook カレンダーの予定を照会・登録・操作するためのコマンドラインツールです。
+`calendit` は、ターミナルから Google カレンダー、Outlook カレンダー、および **macOS 標準カレンダー（EventKit）** の予定を照会・登録・操作するためのコマンドラインツールです。
 特に、**LLM（AIエージェント）による自動操作**と、**人間によるドキュメントベースの管理**の両立を目的としています。
 
 ### システム構造
@@ -21,17 +21,25 @@ graph TD
     
     Service --> Google[GoogleCalendarService]
     Service --> Outlook[OutlookCalendarService]
+    Service --> Macos[MacosCalendarService]
     
     Google --> GAPI[Google Calendar API]
     Outlook --> MGraph[Microsoft Graph API]
+    Macos --> EK[EventKit Helper または 常駐ブリッジ]
     
     Config -- 永続化 --> FileSystem[(~/.config/calendit/)]
     Auth -- 認証永続化 --> Keychain[(macOS Keychain / Token File)]
 ```
 
 ## 2. 主要機能
-### 2.1 認証 (Auth)
-- **方式**: 各サービスが提供する標準的な OAuth 2.0 Web Flow。
+### 2.1 認証・アカウント接続状態 (Auth / Accounts)
+- **方式（Google / Outlook）**: 各サービスが提供する標準的な OAuth 2.0 Web Flow。
+- **`calendit accounts status`**: 登録済みコンテキストごとに、サービス・カレンダー・アカウント表示名・**接続状態**（`CONNECTION` 列。Google/Outlook はトークン相当、macOS は TCC 経路と eventkit-helper / ブリッジのいずれで `doctor` が通ったか・`calendarIdentifier` の存在）を一覧表示する。macOS でブリッジ経由のときは **`OK (bridge)`** を表示し得る。`CALENDAR NOT FOUND` は主に ID 不整合。`NO CALENDAR ACCESS` は TCC/トランスポート系（カレンダー ID 自体の誤りと混同しやすい）を指す。macOS 行の **`ACCOUNT` 列**は `calendit macos list-calendars` の **SOURCE**（EventKit の `sourceTitle`）と同一の値を表示する（カレンダー未検出時は従来どおり `accountId` または `(default)`）。
+- **`calendit auth status`**: `accounts status` と同一形式の表を出力する。将来的には `accounts` への統合を推奨する案内をログに表示する場合がある。
+- **Google**: トークンファイルの有効期限・`refresh_token` の有無で `OK` / `NOT LOGGED IN` / `EXPIRED` / `NOT CONFIGURED` を判定する。
+- **Outlook**: `config.json` に `outlook_creds` が無い場合は **`NOT CONFIGURED`**。設定済みなら MSAL キャッシュ上のアカウント照合で `OK` / `NOT LOGGED IN` 等を判定する。
+- **macOS（EventKit）**: OAuth は不要。**既定**: macOS 上で `CALENDIT_EVENTKIT_BRIDGE` 未指定のとき、**`bridge.token` と有効な Unix ソケット**が `~/Library/Application Support/calendit/`（または `CALENDIT_CONFIG_DIR` 使用時はその下）に存在すれば **常駐ブリッジ**を自動使用。`CALENDIT_EVENTKIT_BRIDGE=0` 等で **eventkit-helper** 子プロセスに固定可。`config set-macos-transport` により、シェル未設定時の既定（`auto` / `bridge` / `helper`）を `config.json` に永続可。TCC 許可の主体は原則 **CalenditEventKitBridge.app** 側（`calendit macos bridge start` / `macos setup` 参照）。いずれも `calendarIdentifier` の存在等で接続を判定する（詳細は `docs/eventkit-bridge.md`）。
+- **macOS（参加者）**: `add --attendees` 等で渡した参加者を EventKit 経由で確実に書き戻すことは、Swift / EventKit 側の挙動・権限の整理が未スパイクのため現時点では保証しない（今後の検証課題）。
 - **体験**: コマンド実行時にブラウザが開き、ユーザーがログイン・許可を行うと、ローカルの `calendit` がトークンを取得・保存します。
 - **保存と永続化 (macOS重視)**: 
   - 認証トークンは OS の安全な場所（**macOS キーチェーン**）に保存されます。
@@ -64,7 +72,19 @@ graph TD
 ### 2.5 多彩な入出力フォーマット
 - **CSV**: 表形式で一覧性が高く、データ処理に適しています。
 - **Markdown (MD)**: 人間の視認性が高く、メモ帳感覚で編集・管理できます。
-- **JSON**: AI ツールがプログラム的に処理するのに最適です。
+- **JSON (CalendarJSON)**: AI ツールがプログラム的に処理するのに最適な標準化フォーマット。メタデータ付きラッパー形式（詳細は §3.3）。
+
+### 2.6 UI 言語（ローカライズ）
+- **既定**: 英語（`en`）。ユーザー向け文言は `src/locales/en.json` / `ja.json` をマスターとし、実行時に `t()` で解決する。
+- **優先順位**: 環境変数 `CALENDIT_LOCALE` > グローバル `--locale <code>` > `config.json` の `ui.locale`（未設定時は `en`）。
+- **初回**: `config.json` がまだない場合のみ、対話で言語を選択し、`ui` に保存する（テスト・CI・非TTY・`CALENDIT_SKIP_LOCALE_PROMPT=1`・`CALENDIT_MOCK=true` ではスキップ）。
+- **永続変更**: `calendit config set-locale en|ja`。
+
+### 2.7 エラー表示とログ（診断）
+- **ユーザー向け**: 終了コード 1 の失敗時も、原則として **`t()` による短いメッセージ**と、あれば **`hint`** の 1〜2 行のみを標準出力に出す（機密や API 生データは載せない）。
+- **`--verbose`**: デバッグログを有効化し、スタックトレース等の追加診断を出す場合がある。
+- **`DEBUG=calendit`**: ログレベルを `debug` に上げる。失敗時は **`ErrorMeta`** 名の 1 行 JSON（エラー種別・`causeCode`・API 要約など）を **`logger.debug`** で出し、非 verbose 実行でも診断に使える。
+- **`--debug-dump <file>`**: ユーザー向け行とログ行の双方を指定ファイルへ追記する（ファイルパスはユーザーが管理する）。
 
 ---
 
@@ -80,10 +100,48 @@ graph TD
 | `end` | 終了日時 (ISO 8601形式) | |
 | `location` | 場所 | |
 | `description`| 説明・メモ | |
-| `service` | `google` または `outlook` | |
+| `service` | `google` / `outlook` / `macos` | |
 | `calendar_id`| 対象カレンダーのID | |
 
-### 3.2 IDの扱い
+### 3.2 CalendarJSON フォーマット（標準化 JSON 形式）
+
+`query --format json` の出力および `apply` の JSON 入力に使用する公式スキーマ。AI が読み書きしやすいメタデータ付きのラッパー形式。
+
+```json
+{
+  "version": "1",
+  "generated_at": "2026-04-16T10:00:00+09:00",
+  "context": "work",
+  "service": "google",
+  "calendar_id": "primary",
+  "events": [
+    {
+      "id": "g_abc123",
+      "summary": "ミーティング",
+      "start": "2026-04-16T10:00:00+09:00",
+      "end": "2026-04-16T11:00:00+09:00",
+      "location": "会議室A",
+      "description": "週次定例",
+      "service": "google",
+      "calendar_id": "primary"
+    }
+  ]
+}
+```
+
+| フィールド | 必須 | 説明 |
+| :--- | :--- | :--- |
+| `version` | ○ | スキーマバージョン（現在 `"1"`） |
+| `generated_at` | ○ | 生成日時（ISO 8601） |
+| `context` | - | 生成時のコンテキスト名 |
+| `service` | - | `google` / `outlook` / `macos` |
+| `calendar_id` | - | 対象カレンダーの ID |
+| `events` | ○ | イベント配列 |
+
+- **後方互換**: イベントの plain array 形式も `apply` で受け入れるが、警告を表示する。
+- **スキーマ検証**: `apply` 入力時に zod で検証し、不正な形式は `ValidationError` を返す。
+
+### 3.3 IDの扱い
 - **MD出力時**: 人間が視認・管理しやすくするため、予定の末尾に `(ID: ...)` 形式で記載します。
   - 例: `- [ ] **ミーティング** (10:00-11:00) (ID: g_abc123)`
 - **CSV/JSON出力時**: 明示的な列/フィールドとして保持します。
@@ -92,8 +150,8 @@ graph TD
 
 ## 4. コンテキスト設定 (Contexts)
 用途に応じた設定をプリセットとして保持し、コマンドのオプション (`--set work` 等) で切り替え可能です。
-- **設定項目**: 対象カレンダーID、デフォルトフォーマット、表示項目など。
-- **コンテキスト別認証**: 各コンテキストに個別の Google/Outlook アカウント（認証トークン）を紐づけることができます。
+- **設定項目**: 対象カレンダーID（Google/Outlook の API ID、macOS の場合は EventKit の **`calendarIdentifier`**）、デフォルトフォーマット、表示項目など。
+- **コンテキスト別認証**: Google/Outlook では各コンテキストに個別アカウント（認証トークン）を紐づけられる。macOS コンテキストは OS ユーザーに紐づくローカルカレンダーを指す。
 
 ## 5. 高度な同期ロジック
 同期操作 (`apply`) 時、利便性と安全性を高める以下のロジックが適用されます。
@@ -103,7 +161,7 @@ graph TD
 4.  **入力バリデーション**: 時刻の逆転（開始 > 終了）や同一ファイル内の ID 重複を検知し、データ破壊を防ぐガードレール機能を搭載。
 5.  **プライマリ保護**: 重要なカレンダー（primary）に対する削除操作を制限。
 6.  **双方向説明文同期**: Markdown のインデント行を説明文としてカレンダーに反映可能。
-7.  **自律的テスト基盤 (`npm test`)**: 全プロバイダ（Google/Outlook）に対する機能互換性を自動検証する基盤を搭載。`CALENDIT_TEST_CONTEXT` 環境変数により、特定のプロバイダに絞った互換性テストを容易に実行可能です。
+7.  **自律的テスト基盤 (`npm test`)**: Google/Outlook を中心に機能互換性を自動検証する基盤を搭載。`CALENDIT_TEST_CONTEXT` 環境変数により、特定のプロバイダに絞った互換性テストを容易に実行可能です。
 
 ---
 
@@ -111,6 +169,9 @@ graph TD
 
 ### 基本・カレンダー管理
 - `calendit auth login <google|outlook>`
+- `calendit accounts status`（全コンテキストの接続状態）
+- `calendit auth status`（上記と同一出力。`accounts` 利用を推奨する案内あり）
+- `calendit macos doctor` / `calendit macos list-calendars`（EventKit 診断・カレンダー一覧）/ `calendit macos bridge fetch`（GitHub 取得→`fetched-eventkit-bridge`、**確認プロンプト**＋任意 Swift ビルド）/ `calendit macos bridge start` / `calendit macos bridge build`（`bridge fetch` 後、または `native/eventkit-bridge` を同梱/参照できる場合。npm 単体には同梱されない）/ `calendit macos setup`
 - `calendit cal list`
 - `calendit cal add <name>`
 

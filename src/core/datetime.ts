@@ -1,6 +1,7 @@
 import { formatInTimeZone } from "date-fns-tz";
 import { ValidationError } from "./errors.js";
 import { logger } from "./logger.js";
+import { t } from "./i18n.js";
 
 /**
  * サポート形式:
@@ -49,15 +50,15 @@ export function parseDateTime(input: string | undefined, defaultOffset: number =
     date = new Date(raw);
   } else {
     throw new ValidationError(
-      `日時フォーマットが不正です: "${input}"`,
-      "例: `today 10:00`, `tomorrow`, `2026-04-16`, `2026-04-16 10:00`, `2026-04-16T10:00:00+09:00`",
+      t("errors.datetime.invalidFormat", { input: input ?? "" }),
+      "e.g. `today 10:00`, `tomorrow`, `2026-04-16`, `2026-04-16 10:00`, `2026-04-16T10:00:00+09:00`",
     );
   }
 
   if (Number.isNaN(date.getTime())) {
     throw new ValidationError(
-      `日時として解釈できません: "${input}"`,
-      "入力値を見直してください。時間は HH:mm 形式で指定してください。",
+      t("errors.datetime.invalidParse", { input: input ?? "" }),
+      t("errors.datetime.invalidParseHint"),
     );
   }
 

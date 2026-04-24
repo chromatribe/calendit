@@ -1,5 +1,29 @@
 # 更新履歴 (Changelog)
 
+## ドキュメント — 2026-04-24
+
+### 追加
+- **`docs/beginner-guide-ja.md`**: 非エンジニア向け。導入（Node / 入手）→ 起動 → 登録（Google / Outlook / macOS）の流れを中心に記述。`docs/README.md` およびルート `README.md` から目次に追加。`getting-started.md` 冒頭に当該ガイドへの導線を追記。
+
+### 更新
+- **`docs/beginner-guide-ja.md`**: **再インストール**（`npm` グローバル、リポジトリの `node_modules` 作り直し、設定消去、macOS ブリッジ）を **§5** として追記。よく詰まる表・文書内の導線を拡充。
+
+---
+
+## ドキュメント体系 — 2026-04-19
+
+### 追加・再編
+- **`docs/README.md`**: `docs/` 全体の目次
+- **`docs/getting-started.md`**: 非エンジニア向けの省略なし手順（Node 確認から `npm test` まで）
+- **`docs/for-ai-agents.md`**: AI / エージェント向けの構造化リファレンス
+- **ルート `README.md`**: 目的・機能・ドキュメントへの導線を整理
+- **`docs/commands.md`**: 冒頭にコマンド早見表を追加
+
+### 更新
+- `setup_google.md` / `setup_outlook.md` / `quickstart_google.md` / `calendit-google.md` / `eventkit-bridge.md` / `manual-local-smoke.md` / `development.md` に上記へのリンクを追記
+
+---
+
 ## v1.0.3 — 2026-04-16
 
 ### 修正

@@ -3,9 +3,24 @@ import { Command } from "commander";
 import { CommandDeps, loadConfigIfExists } from "./shared.js";
 import { ValidationError } from "../core/errors.js";
 import { logger } from "../core/logger.js";
+import { isUiLocale, t } from "../core/i18n.js";
 
 export function registerConfigCommands(program: Command, deps: CommandDeps) {
   const configCmd = program.command("config").description("Configuration management");
+
+  configCmd
+    .command("set-locale <code>")
+    .description("Set UI language (en or ja) and persist to config")
+    .action(async (code: string) => {
+      await loadConfigIfExists(deps.config);
+      const c = code.trim().toLowerCase();
+      if (!isUiLocale(c)) {
+        throw new ValidationError(`Invalid locale: ${code}`, "Use en or ja.");
+      }
+      deps.config.setUi({ locale: c, localePromptCompleted: true });
+      await deps.config.save();
+      logger.info(t("config.cmd.localeSet", { locale: c }));
+    });
 
   configCmd
     .command("set-google")
@@ -41,7 +56,7 @@ export function registerConfigCommands(program: Command, deps: CommandDeps) {
 
       deps.config.setGoogleCreds(id, secret);
       await deps.config.save();
-      logger.info("Google credentials saved to config.");
+      logger.info(t("config.cmd.googleSaved"));
     });
 
   configCmd
@@ -53,7 +68,7 @@ export function registerConfigCommands(program: Command, deps: CommandDeps) {
       await loadConfigIfExists(deps.config);
       deps.config.setOutlookCreds(options.id, options.tenant);
       await deps.config.save();
-      logger.info("Outlook credentials saved to config.");
+      logger.info(t("config.cmd.outlookSaved"));
     });
 
   configCmd
@@ -69,25 +84,40 @@ export function registerConfigCommands(program: Command, deps: CommandDeps) {
 
       const mask = (value: string) => (value.length <= 8 ? value : `${value.slice(0, 3)}...${value.slice(-3)}`);
 
-      logger.info("[CONFIG CHECK]");
+      logger.info(t("config.check.header"));
       logger.info(
-        `  Google credentials : ${
-          googleCreds ? `OK (id: ${mask(googleCreds.id)})` : "NOT SET (run: calendit config set-google --id <id> --secret <secret>)"
-        }`,
+        googleCreds
+          ? t("config.check.googleOk", { mask: mask(googleCreds.id) })
+          : t("config.check.googleNotSet"),
       );
       logger.info(
-        `  Outlook credentials: ${
-          outlookCreds ? `OK (id: ${mask(outlookCreds.id)})` : "NOT SET (run: calendit config set-outlook --id <id>)"
-        }`,
+        outlookCreds
+          ? t("config.check.outlookOk", { mask: mask(outlookCreds.id) })
+          : t("config.check.outlookNotSet"),
       );
       logger.info(
-        `  Contexts           : ${
-          contextEntries.length > 0
-            ? contextEntries.map(([name, ctx]) => `${name} (${ctx.service}/${ctx.calendarId})`).join(", ")
-            : "none"
-        }`,
+        contextEntries.length > 0
+          ? t("config.check.contexts", {
+              list: contextEntries.map(([name, ctx]) => `${name} (${ctx.service}/${ctx.calendarId})`).join(", "),
+            })
+          : t("config.check.contextsNone"),
       );
-      logger.info("  Config file        : ~/.config/calendit/config.json (or CALENDIT_CONFIG_DIR override)");
+      logger.info(t("config.check.fileLine"));
+      logger.info(t("config.check.uiLocale", { locale: deps.config.getUi()?.locale ?? "en" }));
+    });
+
+  configCmd
+    .command("set-macos-transport <value>")
+    .description("Persist default EventKit transport: auto, bridge, or helper (used when CALENDIT_EVENTKIT_BRIDGE is unset in the shell)")
+    .action(async (value: string) => {
+      await loadConfigIfExists(deps.config);
+      const v = value.trim().toLowerCase();
+      if (v !== "auto" && v !== "bridge" && v !== "helper") {
+        throw new ValidationError("Value must be auto, bridge, or helper.");
+      }
+      deps.config.setEventkitDefaultTransport(v);
+      await deps.config.save();
+      logger.info(t("config.cmd.macosTransportSet", { value: v }));
     });
 
   configCmd
@@ -98,24 +128,24 @@ export function registerConfigCommands(program: Command, deps: CommandDeps) {
       const deleted = deps.config.deleteContext(name);
       if (!deleted) {
         throw new ValidationError(
-          `Context '${name}' が見つかりません。`,
-          `登録済みのコンテキストを確認するには \`calendit config check\` を実行してください。`,
+          t("errors.context.missing", { name }),
+          t("errors.context.missingHint", { name }),
         );
       }
       await deps.config.save();
-      logger.info(`Context '${name}' deleted.`);
+      logger.info(t("config.cmd.contextDeleted", { name }));
     });
 
   configCmd
     .command("set-context <name>")
     .description("Set a named context (e.g. work, hobby)")
-    .requiredOption("--service <service>", "google or outlook")
-    .requiredOption("--calendar <id>", "Calendar ID")
+    .requiredOption("--service <service>", "google, outlook, or macos")
+    .requiredOption("--calendar <id>", "Calendar ID (for macos: EventKit calendarIdentifier from `calendit macos list-calendars`)")
     .option("--account <id>", "Custom account identifier for tokens")
-    .action(async (name: string, options: { service: "google" | "outlook"; calendar: string; account?: string }) => {
+    .action(async (name: string, options: { service: "google" | "outlook" | "macos"; calendar: string; account?: string }) => {
       await loadConfigIfExists(deps.config);
-      if (options.service !== "google" && options.service !== "outlook") {
-        throw new ValidationError("Service must be 'google' or 'outlook'.");
+      if (options.service !== "google" && options.service !== "outlook" && options.service !== "macos") {
+        throw new ValidationError("Service must be 'google', 'outlook', or 'macos'.");
       }
       deps.config.setContext(name, {
         service: options.service,
@@ -123,6 +153,6 @@ export function registerConfigCommands(program: Command, deps: CommandDeps) {
         accountId: options.account,
       });
       await deps.config.save();
-      logger.info(`Context '${name}' saved.`);
+      logger.info(t("config.cmd.contextSaved", { name }));
     });
 }

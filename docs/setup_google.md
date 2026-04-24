@@ -2,6 +2,8 @@
 
 `calendit` で Google カレンダーを操作するには、Google Cloud Console で API を有効にし、認証情報（クライアント ID とクライアント シークレット）を取得する必要があります。
 
+**全体の流れ（Node の導入から）を最初に読む場合:** [getting-started.md](./getting-started.md) の **8-A 章** とこのファイルを併用してください。ここでは **Google Cloud の画面操作**に絞って説明します。
+
 ## 手順 1: プロジェクトの作成と API の有効化
 
 1.  [Google Cloud Console](https://console.cloud.google.com/) にアクセスします。

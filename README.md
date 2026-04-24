@@ -1,94 +1,113 @@
-# calendit 🗓️
+# calendit
 
-ターミナルから Google / Outlook カレンダーを自在に操るための CLI ツール。
-人間のための Markdown 管理と、AI エージェントのための JSON 管理を両立します。
+**ターミナルから** Google カレンダー、Microsoft Outlook（Graph）、および **この Mac のカレンダー（EventKit）** の予定を、**調べる・追加する・Markdown などのファイルと同期する** ためのコマンドラインツール（CLI）です。
 
-[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
+ライセンス: **ISC**（[LICENSE](LICENSE)）。  
+作者: **chromatribe - s.ohara**（ivis.klain@chromatri.be）
 
-## 🌟 特徴
+**npm でグローバル導入した直後（AI / Cursor の初回ラリー用）** — 同梱されない `docs/` を **GitHub 上の次の 1 本**から辿ってください（**リポジトリを clone していない場合も有効**）:
 
-- **Markdown 同期**: カレンダーの予定を Markdown で書き出し、メモ帳感覚で編集して一括反映。
-- **コンテキスト管理**: 「仕事」「プライベート」などの用途（カレンダーID、認証アカウント）を `--set` 一つで切り替え。
-- **マルチアカウント対応**: 複数の Google / Outlook アカウントを個別に認証し、シームレスに使い分け可能。
-- **堅牢なエラーハンドリング**: 詳細なエラーメッセージと改善のためのヒントを提供。
-- **自律的テスティング**: 期待動作をドキュメント化し、AI が自ら検証・修正を行う高度な開発フロー。
-- **macOS 最適化**: 永続的なトークン管理とローカル時刻の完全サポート。
+- **初回ラリー（対話用プレイブック）:** <https://github.com/chromatribe/calendit/blob/main/docs/ai-onboarding-rally.md>
+- **生テキスト URL:** <https://raw.githubusercontent.com/chromatribe/calendit/main/docs/ai-onboarding-rally.md>
 
-## 🚀 クイックスタート
+`npm install` 直後のターミナルにも、同じ URL を 1 行表示する `postinstall` があります（`package.json`）。
 
-### 1. インストール
+---
+
+## 目的（なぜこのツールがあるか）
+
+1. **人間**が、エディタとターミナルだけで予定をファイル（Markdown 等）として扱えるようにする。  
+2. **AI エージェント**（Cursor、Antigravity、GitHub Copilot、その他「ターミナルでコマンドを実行できる」開発支援ツール）が、**同じコマンド**を繰り返し安全に実行できるようにする。  
+3. **複数のカレンダー環境**（仕事用 Google、個人用 Outlook、Mac ローカルなど）を **名前付きコンテキスト** で切り替える。
+
+---
+
+## 主な機能
+
+| 機能 | 説明 |
+|------|------|
+| **query** | 指定期間の予定を **Markdown / CSV / JSON** で表示またはファイル出力 |
+| **apply** | ファイルの内容をカレンダーに反映（ID があれば更新、なければ新規。**同期モード**でファイルに無い予定の削除も可） |
+| **add** | 1 件の予定を対話なしで追加（`--dry-run` で確認のみ） |
+| **cal** | カレンダー一覧・作成・削除（macOS コンテキストでは一部未対応） |
+| **config** | API クレデンシャル、コンテキスト、UI 言語の保存 |
+| **auth / accounts** | OAuth ログイン、全コンテキストの **接続状態一覧** |
+| **macos** | EventKit 診断（`doctor`）、カレンダー一覧、IDE 向け **Terminal.app 委譲**（`external`） |
+
+---
+
+## ドキュメント（必読の順）
+
+**非エンジニアでも動かせる手順**から、**コマンド一覧**、**AI 向けの構造化情報**まで、すべて **`docs/`** にあります。
+
+| 順 | 文書 | 内容 |
+|----|------|------|
+| 0 | **初回ラリー**（npm `-g` では `docs` 未同梱）: **[ai-onboarding-rally.md on GitHub](https://github.com/chromatribe/calendit/blob/main/docs/ai-onboarding-rally.md)** | **AI / Cursor 向け:** Google / Outlook / macOS の**分岐**と、次のコマンドの幹。リポ clone なしで参照可 |
+| 1 | **[docs/README.md](docs/README.md)** | `docs/` 全体の目次（**リポジトリを手元に clone した人向け**相対パス） |
+| 1b | **[docs/beginner-guide-ja.md](docs/beginner-guide-ja.md)** | **非エンジニア向け（日本語）:** 導入 → 起動 → 登録に集中した全体の地図（詳細は `getting-started` へ） |
+| 2 | **[docs/getting-started.md](docs/getting-started.md)** | **省略なし:** Node の確認 → 取得 → ビルド → Google / Outlook / macOS のどれかでログイン → カレンダー登録 → 動作確認 → `npm test` |
+| 3 | **[docs/commands.md](docs/commands.md)** | **コマンド早見表** + 各サブコマンドのオプション |
+| 4 | **[docs/for-ai-agents.md](docs/for-ai-agents.md)** | リポジトリ構成、環境変数、テスト契約、OAuth の落とし穴 |
+
+プロバイダ別のクラウドコンソール操作:
+
+- [docs/setup_google.md](docs/setup_google.md)  
+- [docs/setup_outlook.md](docs/setup_outlook.md)  
+
+macOS 常駐ブリッジ（上級）:
+
+- [docs/eventkit-bridge.md](docs/eventkit-bridge.md)  
+- [native/eventkit-helper/README.md](native/eventkit-helper/README.md)  
+- [native/eventkit-bridge/README.md](native/eventkit-bridge/README.md)  
+
+開発・テストの内部仕様:
+
+- [docs/ux-evaluation.md](docs/ux-evaluation.md)（**UX 検証**の始め方: `npm test` → `npm run ux:link` 等）  
+- [docs/development.md](docs/development.md)  
+- [docs/tests.md](docs/tests.md)  
+
+---
+
+## 開発環境向けクイックコマンド（最短）
+
+**前提:** Node.js **18 以上**、Git。
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/calendit.git
+git clone https://github.com/chromatribe/calendit.git
 cd calendit
-npm install
+npm ci    # 失敗したら npm install
 npm run build
-# パスを通す（任意）
-npm link
+npm run ux:link  # ビルド + npm link（`npm link` だけでも可）
+calendit --version
 ```
 
-### 2. 認証設定
+以降の **人間向けの詳細な手順** は **[docs/getting-started.md](docs/getting-started.md)** に集約しています（**ここでは省略しません**。README からリンク先へ誘導します）。
 
-各サービスのセットアップガイドに従って、API 認証情報を設定します。
+---
 
-- **Google**: [docs/setup_google.md](docs/setup_google.md)
-- **Outlook**: [docs/setup_outlook.md](docs/setup_outlook.md)
-
-```bash
-# Google の設定例
-calendit config set-google --id YOUR_CLIENT_ID --secret YOUR_CLIENT_SECRET
-calendit auth login google
-
-# Outlook の設定例
-calendit config set-outlook --id YOUR_CLIENT_ID
-calendit auth login outlook
-```
-
-### 3. コンテキストの設定
-
-用途に応じたカレンダーを「コンテキスト」として登録します。
-
-```bash
-# 仕事用カレンダーの登録
-calendit config set-context work --service google --calendar primary
-```
-
-### 4. 基本操作
-
-```bash
-# 今日の予定を Markdown に書き出す
-calendit query --set work --format md --out today.md
-
-# 予定をカレンダーに反映（新規作成・更新）
-# --dry-run で変更内容を事前に確認できます
-calendit apply --in today.md --dry-run
-
-# 単発の予定を追加
-calendit add --summary "ランチミーティング" --start "today 12:00" --set work
-```
-
-## 📖 詳細ドキュメント
-
-- [コマンドリファレンス](docs/commands.md)
-- [Google カレンダー セットアップガイド](docs/setup_google.md)
-- [Outlook カレンダー セットアップガイド](docs/setup_outlook.md)
-- [開発者向けガイド (テスト・設計)](docs/development.md)
-
-## 🛠️ 開発者向け
-
-### テストの実行
+## 自動テスト
 
 ```bash
 npm test
 ```
 
-`docs/tests.md` に定義されたテストケースに基づき、自律的に検証が走ります。
+`docs/tests.md` に定義されたケースを実行します（実カレンダーは触らない **モック** が既定）。
 
-## 📄 ライセンス
+---
 
-ISC License. 詳細は [LICENSE](LICENSE) を参照してください。
+## その他おすすめ記載（本 README で触れる項目）
 
-## 👤 著者
+| 項目 | 参照先 |
+|------|--------|
+| 仕様の要約 | [spec/spec.md](spec/spec.md) |
+| 版ごとの変更履歴 | [spec/history/](spec/history/) |
+| ロードマップ | [docs/roadmap.md](docs/roadmap.md) |
+| 手動スモーク（実 API） | [docs/manual-local-smoke.md](docs/manual-local-smoke.md) |
+| 変更ログ（ドキュメント） | [docs/changelog.md](docs/changelog.md) |
 
-**chromatribe - s.ohara** (<ivis.klain@chromatri.be>)
+---
+
+## バッジ
+
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)

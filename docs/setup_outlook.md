@@ -2,6 +2,8 @@
 
 `calendit` で Outlook カレンダーを操作するには、Microsoft Entra ID (旧 Azure AD) でアプリケーションを登録し、クライアント ID を取得する必要があります。
 
+**全体の流れ（Node の導入から）を最初に読む場合:** [getting-started.md](./getting-started.md) の **8-B 章** とこのファイルを併用してください。ここでは **Azure の画面操作**に絞って説明します。
+
 ## 手順 1: アプリケーションの登録
 
 1.  [Azure Portal - アプリの登録](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) にアクセスします。

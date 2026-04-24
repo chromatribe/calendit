@@ -19,7 +19,7 @@ export function registerQueryCommand(program: Command, deps: CommandDeps) {
     .option("--out <file>", "Output file path")
     .option("--dry-run", "Preview (no effect for query)", false)
     .action(async (options: { set?: string; calendar?: string; start?: string; end?: string; format: "csv" | "md" | "json"; out?: string }) => {
-      const { service, calendarId: ctxCalId } = await getServiceForContext(deps, options.set);
+      const { service, calendarId: ctxCalId, serviceType } = await getServiceForContext(deps, options.set);
       const calendarId = options.calendar || ctxCalId;
 
       const now = new Date();
@@ -56,7 +56,7 @@ export function registerQueryCommand(program: Command, deps: CommandDeps) {
       let output = "";
       if (options.format === "md") output = Formatter.toMarkdown(events);
       else if (options.format === "csv") output = Formatter.toCsv(events);
-      else output = JSON.stringify(events, null, 2);
+      else output = Formatter.toJson(events, { context: options.set, service: serviceType, calendarId });
 
       if (options.out) {
         await fs.writeFile(options.out, output, "utf-8");

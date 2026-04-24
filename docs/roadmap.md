@@ -1,90 +1,12 @@
 # 開発ロードマップ
 
-## v1.1.0（次期リリース予定）
+機能の**進行管理・チェックリスト・優先度**は **[docs/calendit-tasks/PRI_TASK_calendit.md](./calendit-tasks/PRI_TASK_calendit.md)** を正とする。本ファイルではリリースの要約とバージョニング方針のみを載せる。  
+利用者向けドキュメントの地図は **[docs/README.md](./README.md)**（初回手順は **[getting-started.md](./getting-started.md)**）。
 
-### 1. 認証・コンテキストの状態一覧（`auth status` コマンド）
+## 要約
 
-**背景**
-
-現状の `calendit config check` はコンテキストの定義（サービス名・カレンダー ID）を表示するのみで、トークンの有効性は確認しない。ログイン済みかどうかをひと目で確認できるコマンドが必要。
-
-**実装予定の出力例**
-
-```
-$ calendit auth status
-
-CONTEXT    SERVICE   CALENDAR     ACCOUNT                   TOKEN
---------   -------   ----------   -----------------------   --------
-crmt       google    primary      ivis.klain@chromatri.be   OK
-lnw        google    10_LNW       ivis.klain@chromatri.be   OK
-home       outlook   primary      ivis.klain@outlook.com    OK
-work       outlook   primary      work@example.com          NOT LOGGED IN
-```
-
-**チェック内容**
-
-| サービス | トークン保存場所 | 有効性の判定方法 |
-|---|---|---|
-| Google | `~/.config/calendit/google_token_<context>.json` | ファイル存在 + `expiry_date` が現在時刻より未来 |
-| Outlook | `~/.config/calendit/msal_cache.json`（Keychain 管理） | `getAllAccounts()` でコンテキストの `accountId` に一致するアカウントの有無 |
-
----
-
-### 2. 同一サービスで複数アカウント接続
-
-**現状**
-
-| サービス | 複数アカウント | 状況 |
-|---|---|---|
-| Google | 可能 | コンテキストごとに別トークンファイルが作成される |
-| Outlook | 可能 | MSAL キャッシュに複数アカウントを共存できる |
-
-現時点でもコマンド上は複数アカウントの登録が可能だが、手順が未ドキュメント。`v1.1.0` でドキュメント整備と動作検証を行う。
-
-**Google で2アカウントを使う手順（整備予定）**
-
-```bash
-# アカウントAでログイン → crmt コンテキストへ紐づけ
-calendit auth login google --set crmt
-calendit config set-context crmt \
-  --service google --calendar primary --account crmt
-
-# アカウントBでログイン → personal コンテキストへ紐づけ
-calendit auth login google --set personal
-calendit config set-context personal \
-  --service google --calendar primary --account personal
-
-# それぞれ別アカウントで query できる
-calendit query --set crmt
-calendit query --set personal
-```
-
-**Outlook で2アカウントを使う手順（整備予定）**
-
-```bash
-# アカウントAでログイン（ブラウザで account-a@outlook.com を選択）
-calendit auth login outlook
-calendit config set-context home \
-  --service outlook --calendar primary --account account-a@outlook.com
-
-# アカウントBでログイン（ブラウザで account-b@outlook.com を選択）
-calendit auth login outlook
-calendit config set-context work \
-  --service outlook --calendar primary --account account-b@outlook.com
-```
-
-> **注意**: Outlook は MSAL の共有キャッシュを使うため、コンテキストの `--account` に正確なメールアドレスを指定しないと意図しないアカウントが選択される場合がある。
-
----
-
-## v1.2.0 以降（将来検討）
-
-| 機能 | 概要 |
-|---|---|
-| Homebrew tap | `brew install chromatribe/tap/calendit` でインストール可能にする |
-| `query` 対話フィルタ | `fzf` 連携による予定の絞り込み・コピー |
-| 横断 query | 複数コンテキストをまとめて query し、マージ表示する |
-| WebDAV / CalDAV 対応 | iCloud・Nextcloud などへの対応（要調査） |
+- **v1.1.0（次期）**: macOS EventKit 連携と横断 `accounts status` は実装済み。残りは Google / Outlook の複数アカウント手順のドキュメント化・検証、および認証状態の利用者向け説明の整理。
+- **v1.2.0 以降**: Homebrew tap、`fzf` による `query` フィルタ、複数コンテキスト横断 `query`、WebDAV/CalDAV など（詳細はタスクシート）。**EventKit 常駐ブリッジ**の MVP（ソケット + `CALENDIT_EVENTKIT_BRIDGE`）は [docs/eventkit-bridge.md](./eventkit-bridge.md) 参照。.app / 公証は未。
 
 ---
 

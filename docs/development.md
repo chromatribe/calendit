@@ -1,6 +1,8 @@
 # 開発者向けガイド
 
-`calendit` の設計思想・開発フロー・ロードマップについての解説です。
+`calendit` の設計思想・開発フローについての解説です（計画の詳細はタスクシート参照）。
+
+**ドキュメントの入口:** [docs/README.md](./README.md)（目次）· [getting-started.md](./getting-started.md)（非エンジニア向け手順）· [for-ai-agents.md](./for-ai-agents.md)（AI 向け）
 
 ---
 
@@ -80,6 +82,7 @@ CalendarError (基底)
 npm test
 ```
 
+- このコマンドは**常に `npm run build` を先に実行**し、テスト対象はコンパイル後の `dist/index.js` です（`ts-node` 直実行では `async` 系の挙動差のため使いません）。子プロセスには `CALENDIT_LOCALE=en` と `CALENDIT_SKIP_LOCALE_PROMPT=1` が付きます。
 - **独立したテストケース**（`--dry-run` 等）は `Promise.allSettled` で並列実行されます。
 - **依存関係のあるケース**（前のコマンド結果を使うもの）は直列で実行されます。
 - 各テスト実行は **一時ディレクトリ** に隔離されており、開発環境の設定に影響しません。
@@ -104,6 +107,8 @@ calendit add --summary "Test" --start "tomorrow 10:00" --dry-run
 ````
 
 失敗を期待するケースは ` ```expect-fail ` を使います。
+
+実 API・OAuth・macOS カレンダー権限などをローカルで確認する手順は [manual-local-smoke.md](manual-local-smoke.md) を参照してください。
 
 ---
 
@@ -135,25 +140,22 @@ calendit add --summary "Test" --start "tomorrow 10:00" --dry-run
 
 ---
 
+## npm レジストリへの公開
+
+- **同梱物**: `package.json` の `files` により `bin/`・`dist/`・ルートの `README.md` / `LICENSE` のみ。Swift の `native/**/.build` などは含めない。`npm pack --dry-run` で確認可能。
+- **pack / publish 前**: `prepack` で `npm test`（ビルド＋自律テスト）が走る。
+
+```bash
+npm whoami
+npm pack --dry-run
+npm publish
+```
+
+- 未ログインの場合は `npm login`（2FA 利用の npm アカウントはワンタイムパスやデバイス承認が必要なことがある）。
+- 同一バージョンの再 publish は不可。`package.json` の `version` を [プロジェクトのバージョン形式](../.cursor/rules/rule.mdc)（`YYYY-mmdd-01.xx` 等）に従い上げ、`spec` / `spec/history` 更新は同一作業単位で行う。
+
+---
+
 ## ロードマップ
 
-### 実装済み
-
-| 機能 | 概要 |
-|---|---|
-| Google カレンダー CRUD | `query`, `apply`, `add`, `cal` |
-| Outlook カレンダー CRUD | Microsoft Graph API 経由 |
-| Markdown 双方向同期 | `query` → 編集 → `apply` ワークフロー |
-| コンテキスト管理 | 複数アカウント・カレンダーの切り替え |
-| Dry Run / Sync モード | 安全な操作プレビューと完全同期 |
-| 自律的テスト環境 | `docs/tests.md` 定義→並列実行 |
-| 堅牢なエラーハンドリング | カスタムエラー階層とユーザー向けヒント |
-
-### 今後の予定
-
-| 機能 | 優先度 | 概要 |
-|---|---|---|
-| 重複予定の検知 | 高 | 同時刻の予定が重複した際の警告表示 |
-| Web 会議連携 | 中 | Google Meet / Teams の URL 自動生成 |
-| 繰り返し予定のサポート | 中 | 週次・月次などの繰り返し予定の CRUD |
-| `cal edit` コマンド | 低 | カレンダー名の変更 |
+実装済み機能・予定・優先度のチェックリストは **[docs/calendit-tasks/PRI_TASK_calendit.md](./calendit-tasks/PRI_TASK_calendit.md)** に集約した。リリースの要約とセマンティックバージョンの方針は [docs/roadmap.md](./roadmap.md) を参照する。

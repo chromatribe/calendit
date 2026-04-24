@@ -2,6 +2,9 @@
 
 このガイドでは `calendit` を使って Google カレンダーを操作できる状態にするまでを、コピペで完結するよう記述します。
 
+**初めて calendit を触る方（省略なしの長い手順）:** 先に **[getting-started.md](./getting-started.md)** を読むことを強く推奨します。  
+**ドキュメント全体の目次:** [README.md](./README.md)
+
 ---
 
 ## 前提条件

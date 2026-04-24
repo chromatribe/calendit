@@ -32,6 +32,12 @@ function writeToDebugDump(line: string) {
   debugStream.write(`${line}\n`);
 }
 
+/** ログプレフィックスなしの標準出力（表形式のユーザー向け表示用） */
+export function writeStdoutLine(line: string): void {
+  writeToDebugDump(line);
+  process.stdout.write(`${line}\n`);
+}
+
 function stringifyArgs(args: unknown[]): string {
   return args
     .map((arg) => {

@@ -1,17 +1,28 @@
 {
   "name": "calendit",
-  "version": "1.0.3",
-  "description": "Terminal-based calendar management tool for Google Calendar and Outlook via CLI",
+  "version": "2026.4.26",
+  "description": "Terminal-based calendar management tool for Google Calendar, Outlook, and macOS Calendar (EventKit) via CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
     "calendit": "bin/cli.js"
   },
+  "files": [
+    "bin",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
+    "postinstall": "node -e \"if (process.env.CI) process.exit(0); console.log('[calendit] First-time AI / Cursor rally: https://github.com/chromatribe/calendit/blob/main/docs/ai-onboarding-rally.md');\"",
     "dev": "node --loader ts-node/esm src/index.ts",
-    "build": "tsc",
-    "prepare": "npm run build",
-    "test": "node --loader ts-node/esm src/test_runner.ts"
+    "gen:locales": "node scripts/gen-locale-keys.mjs",
+    "check:locales": "node scripts/check-locale-parity.mjs",
+    "build": "npm run gen:locales && tsc && node scripts/copy-locales.mjs",
+    "test": "npm run build && node --loader ts-node/esm src/test_runner.ts",
+    "prepack": "npm test",
+    "pack:check": "npm pack --dry-run",
+    "ux:link": "npm run build && npm link"
   },
   "keywords": [
     "calendar",

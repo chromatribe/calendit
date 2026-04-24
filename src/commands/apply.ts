@@ -1,5 +1,6 @@
 import * as fs from "fs/promises";
 import { Command } from "commander";
+import { CalendarEvent } from "../types/index.js";
 import { Formatter } from "../core/formatter.js";
 import { Applier } from "../core/applier.js";
 import { CommandDeps, getServiceForContext } from "./shared.js";
@@ -29,14 +30,18 @@ export function registerApplyCommand(program: Command, deps: CommandDeps) {
       const calendarId = options.calendar || ctxCalId;
       const inputData = await fs.readFile(options.in, "utf-8");
 
-      let inputEvents: Partial<any>[] = [];
+      let inputEvents: Partial<CalendarEvent>[] = [];
       if (options.in.endsWith(".md")) {
         const parsed = Formatter.fromMarkdown(inputData);
         inputEvents = parsed.events;
       } else if (options.in.endsWith(".csv")) {
         inputEvents = Formatter.fromCsv(inputData);
       } else {
-        inputEvents = JSON.parse(inputData);
+        const parsed = Formatter.fromJson(inputData);
+        if (parsed.warnings.length > 0) {
+          parsed.warnings.forEach((w) => logger.warn(w));
+        }
+        inputEvents = parsed.events;
       }
 
       const applier = new Applier(service);

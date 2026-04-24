@@ -1,0 +1,128 @@
+{
+  "errors": {
+    "validation": { "prefix": "入力エラー:" },
+    "config": {
+      "prefix": "設定エラー:",
+      "fileNotFound": "設定ファイルが見つかりません。",
+      "fileNotFoundHint": "初回は `calendit config set-google --id <id> --secret <secret>` などでセットアップしてください。",
+      "invalidFormat": "設定ファイルの形式が不正です。",
+      "invalidFormatDetails": "config.json を確認してください。詳細: {details}",
+      "readFailed": "設定ファイルの読み込みに失敗しました。",
+      "readFailedHint": "config.json のJSON形式を確認してください。"
+    },
+    "auth": {
+      "prefix": "認証エラー:",
+      "googleLoginHint": "docs/setup_google.md を参照するか、`calendit config set-google --file <path>` を実行してください。"
+    },
+    "api": { "prefix": "API エラー" },
+    "apiWithStatus": "API エラー ({status}):",
+    "unknown": "予期しないエラー:",
+    "datetime": {
+      "invalidFormat": "日時フォーマットが不正です: \"{input}\"",
+      "invalidParse": "日時として解釈できません: \"{input}\"",
+      "invalidParseHint": "入力値を見直してください。時間は HH:mm 形式で指定してください。"
+    },
+    "service": {
+      "googleCredsNotSet": "Google の認証情報が未設定です。",
+      "googleCredsNotSetHint": "`calendit config set-google --id <id> --secret <secret>` を実行してください。",
+      "outlookCredsNotSet": "Outlook の認証情報が未設定です。",
+      "outlookCredsNotSetHint": "`calendit config set-outlook --id <id>` を先に実行してください。"
+    },
+    "context": {
+      "missing": "コンテキスト '{name}' が見つかりません。",
+      "missingHint": "`calendit config check` で一覧を確認し、必要なら `calendit config set-context {name} --service google --calendar primary` を実行してください。",
+      "loadFailed": "設定の読み込みに失敗しました。`calendit --help` でセットアップ手順を確認してください。",
+      "loadFailedHint": "`calendit config set-google` などで設定を作成してください。"
+    }
+  },
+  "common": {
+    "hint": "ヒント:"
+  },
+  "config": {
+    "cmd": {
+      "googleSaved": "Google の認証情報を config に保存しました。",
+      "outlookSaved": "Outlook の認証情報を config に保存しました。",
+      "contextSaved": "コンテキスト '{name}' を保存しました。",
+      "contextDeleted": "コンテキスト '{name}' を削除しました。",
+      "localeSet": "UI 言語を '{locale}' に設定しました。",
+      "macosTransportSet": "EventKit の既定トランスポートを '{value}' に保存しました（シェルで CALENDIT_EVENTKIT_BRIDGE 未指定のとき有効）。"
+    },
+    "check": {
+      "header": "[CONFIG CHECK]",
+      "googleOk": "Google credentials : OK (id: {mask})",
+      "googleNotSet": "Google credentials : NOT SET (run: calendit config set-google --id <id> --secret <secret>)",
+      "outlookOk": "Outlook credentials: OK (id: {mask})",
+      "outlookNotSet": "Outlook credentials: NOT SET (run: calendit config set-outlook --id <id>)",
+      "contexts": "Contexts           : {list}",
+      "contextsNone": "Contexts           : none",
+      "fileLine": "Config file        : ~/.config/calendit/config.json (or CALENDIT_CONFIG_DIR override)",
+      "uiLocale": "UI locale          : {locale}"
+    }
+  },
+  "locale": {
+    "bootstrap": {
+      "prompt": "calendit の表示言語を選んでください:",
+      "choiceEn": "English",
+      "choiceJa": "日本語"
+    }
+  },
+  "eventkit": {
+    "bridge": {
+      "tokenMissing": "EventKit ブリッジのトークンが {path} にありません。",
+      "hintStartBridge": "ブリッジを起動: calendit macos bridge start、または /Applications などの CalenditEventKitBridge.app を開く。",
+      "connectFailed": "EventKit ブリッジ {path} に接続できません: {message}。",
+      "timeout": "EventKit ブリッジが {ms} ms 以内に応答しませんでした。",
+      "invalidJson": "EventKit ブリッジからの JSON が不正です: {line}",
+      "closedWithoutResponse": "EventKit ブリッジが応答を送る前に接続を閉じました。",
+      "bridgeError": "EventKit ブリッジ エラー"
+    },
+    "helper": {
+      "missing": "EventKit ヘルパー実行ファイルが見つかりません。",
+      "hintBuild": "CALENDIT_EVENTKIT_HELPER を設定するか、(cd native/eventkit-helper && swift build -c release) でビルドしてください。",
+      "timeout": "EventKit ヘルパーが {ms} ms 以内に終了しませんでした。",
+      "exitCode": "EventKit ヘルパーが終了コード {code} で終了しました。"
+    }
+  },
+  "macos": {
+    "bridge": {
+      "openFailed": "ブリッジ app を起動できません: {message}",
+      "opened": "起動しました: {path}。数秒待ってから: calendit macos doctor",
+      "notFound": "CalenditEventKitBridge.app が見つかりません。配布 / Homebrew を使うか、完全なクローン上で: calendit macos bridge build — 次に: calendit macos bridge start",
+      "buildNoSource": "EventKit ブリッジのソースがこのインストール近くにありません。git クローン一式を使うか、CALENDIT_EVENTKIT_BRIDGE_ROOT に native/eventkit-bridge を指定するか、**calendit macos bridge fetch** で取得できます。",
+      "buildOk": "ビルドが完了しました。{path}",
+      "buildFailed": "EventKit ブリッジのビルドに失敗しました: {message}",
+      "fetchIntro": "GitHub 上の calendit リポジトリのスナップショットを取り、**native/eventkit-bridge だけ**を、既定の calendit データ領域（通常は `~/Library/Application Support/calendit/` 配下）に展開します。次のステップで Swift により CalenditEventKitBridge.app をビルドします。",
+      "fetchPlan": "• 取得元: {url}\n• おおよそのダウンロード量: {sizeLine}\n• 展開先: {dest}\n• その後（任意）同フォルダで Swift ビルドを実行し、`.build/CalenditEventKitBridge.app` を作ります。",
+      "fetchSizeKnown": "約 {mb} MiB（サーバの Content-Length）",
+      "fetchSizeUnknown": "未確認（HEAD に Content-Length がない場合。数MB程度のことが多い）",
+      "fetchConfirm": "上記のとおりダウンロードと展開を行いますか？",
+      "fetchCancel": "取り消しました。ダウンロードは行っていません。",
+      "fetchBuildPrompt": "続けて Swift で .app をビルドしますか？（Xcode コマンドライン: swift / codesign が必要）",
+      "fetchOk": "EventKit ブリッジ用ソースを配置しました: {path}。ビルド後は: calendit macos bridge start または calendit macos setup など。",
+      "fetchSkipsExisting": "既に {path} にブリッジ用ソースがあります。上書きする場合は --force か: calendit macos bridge build",
+      "fetchFailed": "ダウンロードまたは展開に失敗しました: {message}",
+      "fetchNoTty": "対話式でない端末です。ダウンロードの確認を省略するには --yes を使うか、操作できるターミナルで実行してください。"
+    },
+    "setup": {
+      "notDarwin": "macOS のみです。",
+      "noTransport": "EventKit が使えません（ヘルパー未ビルド、または未起動のブリッジ）。helper をビルドするかブリッジ .app を起動してください。",
+      "tcc": "CalenditEventKitBridge にカレンダー許可: システム設定 → プライバシーとセキュリティ → カレンダー。終わったら Enter。",
+      "pickCalendar": "使うカレンダーを選んでください:",
+      "contextName": "このコンテキスト名（例: my-mac）:",
+      "contextNameRequired": "コンテキスト名を入力してください。",
+      "saved": "コンテキスト '{name}' を保存しました（macos / {calendarId}）。",
+      "noCalendars": "カレンダーが取得できません（権限の可能性あり）。",
+      "startBridgePrompt": "ブリッジが起動していない可能性があります。CalenditEventKitBridge.app を開きますか？",
+      "canceled": "セットアップを中止しました。"
+    },
+    "external": {
+      "onlyDarwin": "macOS のみ対応です。",
+      "badSub": "サブコマンドは `doctor` / `list-calendars` / `shell` です。",
+      "badSubHint": "例: calendit macos external doctor  /  calendit macos external list-calendars --json  /  calendit macos external shell",
+      "jsonOnlyForList": "`--json` は `list-calendars` のときのみ使えます。",
+      "opened": "ターミナル.app を開きました。新しいウィンドウで実行しています: {cmd}",
+      "osascriptFailed": "AppleScript でターミナル.app を開けませんでした: {message}",
+      "suggestionWhenDenied": "このターミナルではカレンダーが拒否されています。例: calendit macos external doctor（ターミナルで許可ダイアログ） / calendit macos external shell（このディレクトリでターミナルを開き、query 等も含めて利用）。"
+    }
+  }
+}

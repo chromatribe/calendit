@@ -8,6 +8,8 @@ alwaysApply: false
 
 # calendit - Google カレンダー操作ガイド
 
+**人間向けの初回セットアップ（省略なし）:** [getting-started.md](./getting-started.md) · **AI 向けリポジトリ情報:** [for-ai-agents.md](./for-ai-agents.md)
+
 ## セットアップ状況
 
 このプロジェクトでは `calendit` CLI を使って Google カレンダーを操作します。

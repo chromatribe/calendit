@@ -8,7 +8,16 @@ export class CalendarError extends Error {
   }
 }
 
-export class ConfigError extends CalendarError {}
+export type ConfigErrorCause = "missing_file" | "invalid_schema" | "read_failed";
+
+export class ConfigError extends CalendarError {
+  public readonly causeCode?: ConfigErrorCause;
+
+  constructor(message: string, hint?: string, causeCode?: ConfigErrorCause) {
+    super(message, hint);
+    this.causeCode = causeCode;
+  }
+}
 
 export class AuthError extends CalendarError {}
 

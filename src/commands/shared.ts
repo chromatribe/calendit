@@ -3,7 +3,9 @@ import { AuthManager } from "../core/auth.js";
 import { GoogleCalendarService } from "../services/google.js";
 import { OutlookCalendarService } from "../services/outlook.js";
 import { MockCalendarService } from "../services/mock.js";
+import { MacosCalendarService } from "../services/macos.js";
 import { ConfigError } from "../core/errors.js";
+import { t } from "../core/i18n.js";
 
 export interface CommandDeps {
   config: ConfigManager;
@@ -11,16 +13,16 @@ export interface CommandDeps {
 }
 
 export interface ResolvedService {
-  service: GoogleCalendarService | OutlookCalendarService | MockCalendarService;
+  service: GoogleCalendarService | OutlookCalendarService | MockCalendarService | MacosCalendarService;
   calendarId: string;
-  serviceType: "google" | "outlook" | "mock";
+  serviceType: "google" | "outlook" | "mock" | "macos";
 }
 
 export async function loadConfigIfExists(config: ConfigManager): Promise<void> {
   try {
     await config.load();
   } catch (err) {
-    if (err instanceof ConfigError && err.message.includes("見つかりません")) {
+    if (err instanceof ConfigError && err.causeCode === "missing_file") {
       return;
     }
     throw err;
@@ -34,10 +36,7 @@ export async function getServiceForContext(deps: CommandDeps, contextName?: stri
     await config.load();
   } catch (err) {
     if (err instanceof ConfigError) {
-      throw new ConfigError(
-        "Failed to load configuration. Run 'calendit --help' for setup instructions.",
-        "初回は `calendit config set-google` などで設定を作成してください。",
-      );
+      throw new ConfigError(t("errors.context.loadFailed"), t("errors.context.loadFailedHint"));
     }
     throw err;
   }
@@ -48,8 +47,8 @@ export async function getServiceForContext(deps: CommandDeps, contextName?: stri
 
   if (!ctx) {
     throw new ConfigError(
-      `Context '${contextName}' が見つかりません。`,
-      `\`calendit config set-context ${contextName} --service google --calendar primary\` を実行してください。`,
+      t("errors.context.missing", { name: contextName ?? "" }),
+      t("errors.context.missingHint", { name: contextName ?? "" }),
     );
   }
 
@@ -61,13 +60,25 @@ export async function getServiceForContext(deps: CommandDeps, contextName?: stri
     };
   }
 
+  if (ctx.service === "macos") {
+    if (process.env.CALENDIT_MOCK === "true") {
+      return {
+        service: new MockCalendarService("macos"),
+        calendarId: ctx.calendarId,
+        serviceType: "mock",
+      };
+    }
+    return {
+      service: new MacosCalendarService(),
+      calendarId: ctx.calendarId,
+      serviceType: "macos",
+    };
+  }
+
   if (ctx.service === "google") {
     const creds = config.getGoogleCreds();
     if (!creds) {
-      throw new ConfigError(
-        "Google 認証情報が未設定です。",
-        "`calendit config set-google --id <id> --secret <secret>` を実行してください。",
-      );
+      throw new ConfigError(t("errors.service.googleCredsNotSet"), t("errors.service.googleCredsNotSetHint"));
     }
     // Token file is keyed by contextName (used during `auth login --set`), falling back to accountId
     const tokenKey = contextName || ctx.accountId;
@@ -81,10 +92,7 @@ export async function getServiceForContext(deps: CommandDeps, contextName?: stri
 
   const creds = config.getOutlookCreds();
   if (!creds) {
-    throw new ConfigError(
-      "Outlook 認証情報が未設定です。",
-      "`calendit config set-outlook --id <id>` を実行してください。",
-    );
+    throw new ConfigError(t("errors.service.outlookCredsNotSet"), t("errors.service.outlookCredsNotSetHint"));
   }
 
   const pca = await auth.getOutlookClient(creds.id, creds.tenantId);

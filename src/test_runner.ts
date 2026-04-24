@@ -7,6 +7,11 @@ import { promisify } from "util";
 
 const execAsync = promisify(exec);
 
+/** Replace CLI word `calendit` only (e.g. keep `DEBUG=calendit` value literal). */
+function substituteCalenditCli(rawCmd: string, cliCmdBase: string): string {
+  return rawCmd.replace(/(^|\s)calendit(?=\s|$)/g, (_, pre: string) => `${pre}${cliCmdBase}`);
+}
+
 interface TestCase {
   id: string;
   name: string;
@@ -22,7 +27,7 @@ interface TestResult {
 }
 
 async function runCommand(rawCmd: string, cliCmdBase: string, testConfigDir: string): Promise<{ output: string; success: boolean }> {
-  const cmd = rawCmd.replace(/calendit/g, cliCmdBase) + " 2>&1";
+  const cmd = substituteCalenditCli(rawCmd, cliCmdBase) + " 2>&1";
   try {
     const { stdout, stderr } = await execAsync(cmd, {
       maxBuffer: 10 * 1024 * 1024,
@@ -31,6 +36,8 @@ async function runCommand(rawCmd: string, cliCmdBase: string, testConfigDir: str
         ...process.env,
         CALENDIT_MOCK: "true",
         CALENDIT_CONFIG_DIR: testConfigDir || process.env.CALENDIT_CONFIG_DIR || "",
+        CALENDIT_LOCALE: "en",
+        CALENDIT_SKIP_LOCALE_PROMPT: "1",
       },
     });
     return { output: stdout + stderr, success: true };
@@ -81,6 +88,8 @@ function isStatefulTestCase(tc: TestCase): boolean {
   return (
     cmd.includes("config set-") ||
     cmd.includes("auth login") ||
+    cmd.includes("auth status") ||
+    cmd.includes("accounts status") ||
     cmd.includes("apply --in tests/data/empty.md --sync") ||
     cmd.includes("\n")
   );
@@ -94,7 +103,8 @@ async function runTests() {
   console.log(`🚀 Starting professional autonomous test runner (v${version})...`);
   if (testContext) console.log(`🎯 Testing Context: ${testContext}`);
   
-  const cliCmdBase = "/usr/local/bin/node --loader ts-node/esm src/index.ts";
+  const distCli = path.join(process.cwd(), "dist", "index.js");
+  const cliCmdBase = `node ${JSON.stringify(distCli)}`;
   const testsFile = path.join(process.cwd(), "docs/tests.md");
 
   let testConfigDir = path.join(os.tmpdir(), `calendit_test_${Math.random().toString(36).substring(2, 9)}`);

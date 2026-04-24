@@ -14,6 +14,7 @@ export function registerAddCommand(program: Command, deps: CommandDeps) {
     .option("--end <dateTime>", "End date/time")
     .option("--location <text>", "Event location")
     .option("--description <text>", "Event description")
+    .option("--attendees <emails>", "Comma-separated attendee emails (macOS EventKit: may be ignored depending on OS)")
     .option("--set <name>", "Use a named context")
     .option("--calendar <id>", "Explicit Calendar ID")
     .option("--dry-run", "Preview addition without applying", false)
@@ -24,6 +25,7 @@ export function registerAddCommand(program: Command, deps: CommandDeps) {
         end?: string;
         location?: string;
         description?: string;
+        attendees?: string;
         set?: string;
         calendar?: string;
         dryRun: boolean;
@@ -52,6 +54,13 @@ export function registerAddCommand(program: Command, deps: CommandDeps) {
         const formattedStart = formatInTimeZone(startDate, timeZone, "yyyy-MM-dd'T'HH:mm:ssXXX");
         const formattedEnd = formatInTimeZone(endDate, timeZone, "yyyy-MM-dd'T'HH:mm:ssXXX");
 
+        const attendeeList = options.attendees
+          ? options.attendees
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : undefined;
+
         logger.info(`Adding event: ${options.summary}`);
         logger.info(`Start: ${formattedStart}`);
         logger.info(`End:   ${formattedEnd}`);
@@ -67,6 +76,7 @@ export function registerAddCommand(program: Command, deps: CommandDeps) {
           end: formattedEnd,
           location: options.location,
           description: options.description,
+          ...(attendeeList?.length ? { attendees: attendeeList } : {}),
         });
         logger.info(`✅ Event added successfully: "${options.summary}"`);
       },

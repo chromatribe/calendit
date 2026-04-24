@@ -3,19 +3,12 @@ import { KeychainPersistence, PersistenceCachePlugin } from "@azure/msal-node-ex
 import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 import * as path from "path";
-import * as os from "os";
 import * as fs from "fs/promises";
 import * as http from "http";
 import open from "open";
 import { AuthError } from "./errors.js";
 import { logger } from "./logger.js";
-
-const CONFIG_DIR = path.join(os.homedir(), ".config", "calendit");
-
-function getTokenPath(name?: string): string {
-  const filename = name ? `google_token_${name}.json` : "google_token.json";
-  return path.join(CONFIG_DIR, filename);
-}
+import { getCalenditConfigDir, getGoogleTokenFilePath } from "./config.js";
 
 export class AuthManager {
   private msalClient?: PublicClientApplication;
@@ -27,8 +20,9 @@ export class AuthManager {
    */
   async getOutlookClient(clientId: string, tenantId: string = "common") {
     if (!this.msalClient) {
-      await fs.mkdir(CONFIG_DIR, { recursive: true });
-      const cachePath = path.join(CONFIG_DIR, "msal_cache.json");
+      const configDir = getCalenditConfigDir();
+      await fs.mkdir(configDir, { recursive: true });
+      const cachePath = path.join(configDir, "msal_cache.json");
       const persistence = await KeychainPersistence.create(cachePath, "calendit-service", "outlook-account");
       const cachePlugin = new PersistenceCachePlugin(persistence);
 
@@ -52,7 +46,7 @@ export class AuthManager {
    */
   async getGoogleAuth(clientId: string, clientSecret: string, accountId?: string): Promise<OAuth2Client> {
     const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, "http://localhost:3000");
-    const tokenPath = getTokenPath(accountId);
+    const tokenPath = getGoogleTokenFilePath(accountId);
 
     try {
       const tokenData = await fs.readFile(tokenPath, "utf-8");
@@ -69,7 +63,7 @@ export class AuthManager {
    */
   async loginGoogle(clientId: string, clientSecret: string, accountId?: string): Promise<void> {
     const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, "http://localhost:3000");
-    const tokenPath = getTokenPath(accountId);
+    const tokenPath = getGoogleTokenFilePath(accountId);
 
     const authUrl = oauth2Client.generateAuthUrl({
       access_type: "offline",
@@ -99,7 +93,7 @@ export class AuthManager {
 
           if (code) {
             const { tokens } = await oauth2Client.getToken(code);
-            await fs.mkdir(CONFIG_DIR, { recursive: true });
+            await fs.mkdir(getCalenditConfigDir(), { recursive: true });
             await fs.writeFile(tokenPath, JSON.stringify(tokens, null, 2));
             
             res.end("Authentication successful! You can close this tab and return to the terminal.");

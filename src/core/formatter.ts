@@ -14,6 +14,28 @@ const partialEventSchema = z.object({
   description: z.string().optional(),
 });
 
+const jsonEventSchema = z.object({
+  id: z.string().optional(),
+  summary: z.string().min(1, "summary is required"),
+  start: z.string(),
+  end: z.string(),
+  location: z.string().optional(),
+  description: z.string().optional(),
+  service: z.enum(["google", "outlook", "macos"]).optional(),
+  calendar_id: z.string().optional(),
+});
+
+const calendarJsonSchema = z.object({
+  version: z.literal("1"),
+  generated_at: z.string(),
+  context: z.string().optional(),
+  service: z.enum(["google", "outlook", "macos"]).optional(),
+  calendar_id: z.string().optional(),
+  events: z.array(jsonEventSchema),
+});
+
+export type CalendarJsonFormat = z.infer<typeof calendarJsonSchema>;
+
 export interface ParseResult {
   events: Partial<CalendarEvent>[];
   warnings: string[];
@@ -156,6 +178,80 @@ export class Formatter {
     }
 
     warnings.forEach((warning) => logger.warn(warning));
+    return { events, warnings };
+  }
+
+  /**
+   * 予定の配列を CalendarJSON ラッパー形式の文字列に変換
+   */
+  static toJson(
+    events: CalendarEvent[],
+    meta?: { context?: string; service?: "google" | "outlook" | "macos" | "mock"; calendarId?: string },
+  ): string {
+    const serviceValue =
+      meta?.service === "google" || meta?.service === "outlook" || meta?.service === "macos" ? meta.service : undefined;
+    const payload: CalendarJsonFormat = {
+      version: "1",
+      generated_at: new Date().toISOString(),
+      context: meta?.context,
+      service: serviceValue,
+      calendar_id: meta?.calendarId,
+      events: events.map((e) => ({
+        id: e.id,
+        summary: e.summary,
+        start: e.start,
+        end: e.end,
+        location: e.location,
+        description: e.description,
+        service: e.service,
+        calendar_id: e.calendarId,
+      })),
+    };
+    return JSON.stringify(payload, null, 2);
+  }
+
+  /**
+   * CalendarJSON 文字列から予定を抽出
+   * 旧来の events 配列形式も警告付きで受け入れる（後方互換）
+   */
+  static fromJson(data: string): ParseResult {
+    const warnings: string[] = [];
+    let raw: unknown;
+
+    try {
+      raw = JSON.parse(data);
+    } catch {
+      throw new ValidationError("JSON のパースに失敗しました。", "有効な JSON ファイルを指定してください。");
+    }
+
+    // 後方互換: 旧来の plain array 形式
+    if (Array.isArray(raw)) {
+      warnings.push("後方互換: イベントの配列形式を検出しました。CalendarJSON ラッパー形式（version: \"1\"）の使用を推奨します。");
+      warnings.forEach((w) => logger.warn(w));
+      return { events: raw as Partial<CalendarEvent>[], warnings };
+    }
+
+    const result = calendarJsonSchema.safeParse(raw);
+    if (!result.success) {
+      const detail = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
+      throw new ValidationError(
+        `JSON スキーマ検証エラー: ${detail}`,
+        "`calendit query --format json` で出力した JSON ファイルを使用してください。",
+      );
+    }
+
+    const events: Partial<CalendarEvent>[] = result.data.events.map((e) => ({
+      id: e.id,
+      summary: e.summary,
+      start: e.start,
+      end: e.end,
+      location: e.location,
+      description: e.description,
+      service: e.service,
+      calendarId: e.calendar_id,
+    }));
+
+    warnings.forEach((w) => logger.warn(w));
     return { events, warnings };
   }
 

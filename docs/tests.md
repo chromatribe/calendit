@@ -1,4 +1,4 @@
-# calendit テストケース & 期待動作 (v2026-0416-01.03)
+# calendit テストケース & 期待動作 (v2026-0424-01.08)
 
 このドキュメントでは、ツールの品質を担保するためのテストケースを定義します。  
 `src/test_runner.ts` は本ファイルを解析し、記載されたコマンドの出力に期待文字列が含まれるかを検証します。
@@ -7,9 +7,11 @@
 
 | 仕様セクション (`spec/spec.md`) | 対応テストケース ID |
 |---|---|
-| 1. 概要/起動 | `TC-INST-*` |
-| 2.1 認証 | `TC-SETUP-*`, `TC-ERR-01`, `TC-ERR-02` |
+| 1. 概要/起動 | `TC-INST-*`, `TC-INST-ACC-01` |
+| 2.1 認証・アカウント状態 | `TC-SETUP-*`, `TC-AUTH-01`〜`TC-AUTH-05`, `TC-ACCOUNTS-01`, `TC-ERR-01`, `TC-ERR-02` |
 | 2.2 予定/カレンダー操作 | `TC-QRY-*`, `TC-APPLY-*`, `TC-ADD-*`, `TC-CAL-*` |
+| 2.6 UI 言語（ローカライズ） | `TC-I18N-01`〜`TC-I18N-03` |
+| 2.7 エラー表示とログ（診断） | `TC-ERR-META-01`（`DEBUG=calendit` 時の `ErrorMeta` 行） |
 | 2.4 安全性 | `TC-APPLY-04`, `TC-CAL-02`, `TC-ERR-04`, `TC-ERR-05` |
 | 2.5 入出力フォーマット | `TC-QRY-04`, `TC-QRY-05`, `TC-FORMAT-*` |
 | 4. コンテキスト | `TC-CTX-*` |
@@ -32,8 +34,9 @@
 calendit --version
 ```
 ```expect
-2026-
+2026
 ```
+（`package.json` の `version` は npm 公開向け [semver](https://semver.org/)。`2026.4.24` のよう `2026` を含めばよい。）
 
 ### TC-INST-02 [EP]: `--help` が主要コマンドを含む
 ```sh
@@ -41,6 +44,22 @@ calendit --help
 ```
 ```expect
 query
+```
+
+### TC-INST-ACC-01 [EP]: `--help` に `accounts` コマンドが含まれる
+```sh
+calendit --help
+```
+```expect
+accounts
+```
+
+### TC-INST-ONBOARD-01 [EP]: `--help` に `onboard` が含まれる
+```sh
+calendit --help
+```
+```expect
+onboard
 ```
 
 ### TC-INST-03 [EG]: 未知コマンドは失敗する
@@ -96,12 +115,129 @@ calendit config set-outlook --id "dummy-client-id"
 Outlook credentials saved to config.
 ```
 
+### TC-AUTH-01 [EP]: `auth status` がコンテキストとトークン状態を表示
+```sh
+calendit config set-google --id "dummy-id" --secret "dummy-secret"
+calendit config set-context demo --service google --calendar primary --account user@example.com
+calendit auth status
+```
+```expect
+NOT LOGGED IN
+```
+
+### TC-ACCOUNTS-01 [EP]: `accounts status` が全コンテキストの CONNECTION 列を表示
+```sh
+calendit config set-google --id "dummy-id" --secret "dummy-secret"
+calendit config set-context demo2 --service google --calendar primary --account acc@example.com
+calendit accounts status
+```
+```expect
+CONNECTION
+```
+
+### TC-AUTH-02 [BVA]: Google トークン `expiry_date` が未来なら TOKEN は OK
+（`CALENDIT_CONFIG_DIR` はテストランナーが注入。コンテキスト名とトークンファイル名を一致させる。）
+```sh
+calendit config set-google --id "dummy-id" --secret "dummy-secret"
+calendit config set-context auth-tok-ok --service google --calendar primary --account tc-auth-02@local
+printf '%s' '{"expiry_date":2524608000000}' > "$CALENDIT_CONFIG_DIR/google_token_auth-tok-ok.json"
+calendit auth status
+```
+```expect
+OK
+```
+
+### TC-AUTH-03 [BVA]: Google トークンが期限切れかつリフレッシュなしなら EXPIRED
+```sh
+calendit config set-context auth-tok-exp --service google --calendar primary --account tc-auth-03@local
+printf '%s' '{"expiry_date":1000}' > "$CALENDIT_CONFIG_DIR/google_token_auth-tok-exp.json"
+calendit auth status
+```
+```expect
+EXPIRED
+```
+
+### TC-AUTH-04 [EP]: Google 期限切れでも `refresh_token` があれば TOKEN は OK
+（期待文字列はコンテキスト名のみ。当該行の TOKEN は `OK` になる。）
+```sh
+calendit config set-context ctx-auth-refresh-9f2d --service google --calendar primary --account tc-auth-04@local
+printf '%s' '{"expiry_date":1000,"refresh_token":"dummy-refresh"}' > "$CALENDIT_CONFIG_DIR/google_token_ctx-auth-refresh-9f2d.json"
+calendit auth status
+```
+```expect
+ctx-auth-refresh-9f2d
+```
+
+### TC-AUTH-05 [EP]: Outlook コンテキストで API クレデンシャル未設定なら CONNECTION は NOT CONFIGURED
+（共有 `CALENDIT_CONFIG_DIR` では先に走る `set-outlook` 等で `outlook_creds` が残ると `NOT LOGGED IN` になるため、`outlook_creds` を含まない `config.json` を直書きしてから `accounts status` を検証する。検証後に `set-outlook` で後続 TC が前提とする Outlook 設定を戻す。）
+```sh
+printf '%s' '{"contexts":{"tc-auth-05-ol":{"service":"outlook","calendarId":"primary","accountId":"tc-auth-05@local"}},"google_creds":{"id":"dummy-id","secret":"dummy-secret"},"ui":{"locale":"en","localePromptCompleted":true}}' > "$CALENDIT_CONFIG_DIR/config.json"
+calendit accounts status
+calendit config set-outlook --id "dummy-client-id"
+```
+```expect
+NOT CONFIGURED
+```
+
 ### TC-SETUP-O-02 [EG]: Outlook 設定（id 欠落）
 ```sh
 calendit config set-outlook
 ```
 ```expect-fail
 required option '--id <id>' not specified
+```
+
+### TC-CONFIG-M-01 [EP]: `set-macos-transport` が成功メッセージを返す
+```sh
+calendit config set-google --id "dummy-id" --secret "dummy-secret"
+calendit config set-macos-transport auto
+```
+```expect
+EventKit default transport
+```
+
+---
+
+## UI 言語（ローカライズ）
+
+### TC-I18N-01 [EP]: `config set-locale` が成功メッセージを返す
+```sh
+calendit config set-google --id "dummy-id" --secret "dummy-secret"
+calendit config set-locale ja
+```
+```expect
+UI locale set to 'ja'.
+```
+
+### TC-I18N-02 [EP]: `--help` に `--locale` が載る
+```sh
+calendit --help
+```
+```expect
+--locale
+```
+
+### TC-I18N-03 [EG]: 不正な `set-locale` は失敗する
+```sh
+calendit config set-google --id "dummy-id" --secret "dummy-secret"
+calendit config set-locale xx
+```
+```expect-fail
+Invalid locale
+```
+
+---
+
+## エラー診断ログ
+
+### TC-ERR-META-01 [ST]: `DEBUG=calendit` 時に ErrorMeta が debug に出る
+（2 行目のみ `DEBUG=calendit` を付与し、不正サービスで `ValidationError` 発生時に `ErrorMeta` が出力されることを確認する。）
+```sh
+calendit config set-google --id "dummy-id" --secret "dummy-secret"
+DEBUG=calendit calendit config set-context tc-err-meta-bad --service fax --calendar primary
+```
+```expect-fail
+ErrorMeta
 ```
 
 ---
@@ -121,7 +257,7 @@ Context 'work' saved.
 calendit config set-context invalid --service fax --calendar "primary"
 ```
 ```expect-fail
-Service must be 'google' or 'outlook'.
+Service must be 'google', 'outlook', or 'macos'.
 ```
 
 ### TC-CTX-DEL-01 [EP]: コンテキスト削除（正常）
@@ -138,7 +274,7 @@ Context 'tmp-ctx' deleted.
 calendit config delete-context not-existing-ctx
 ```
 ```expect-fail
-Context 'not-existing-ctx' が見つかりません。
+Context 'not-existing-ctx' was not found.
 ```
 
 ### TC-CTX-03 [EG]: 未定義コンテキスト参照
@@ -146,7 +282,7 @@ Context 'not-existing-ctx' が見つかりません。
 calendit query --set notfound --dry-run
 ```
 ```expect-fail
-Context 'notfound' が見つかりません。
+Context 'notfound' was not found.
 ```
 
 ---
@@ -310,7 +446,7 @@ Outlook credentials:
 calendit add --set work --summary "Bad Date" --start "not-a-date" --dry-run
 ```
 ```expect-fail
-日時フォーマットが不正です
+Invalid date/time format
 ```
 
 ### TC-ERR-04 [BVA]: 時刻逆転

@@ -1,0 +1,128 @@
+{
+  "errors": {
+    "validation": { "prefix": "Validation error:" },
+    "config": {
+      "prefix": "Configuration error:",
+      "fileNotFound": "Config file not found.",
+      "fileNotFoundHint": "Run `calendit config set-google --id <id> --secret <secret>` (or see docs) to create your configuration.",
+      "invalidFormat": "Invalid config file format.",
+      "invalidFormatDetails": "Check config.json. Details: {details}",
+      "readFailed": "Failed to read configuration.",
+      "readFailedHint": "Verify config.json JSON syntax."
+    },
+    "auth": {
+      "prefix": "Authentication error:",
+      "googleLoginHint": "See docs/setup_google.md or run `calendit config set-google --file <path>`."
+    },
+    "api": { "prefix": "API error" },
+    "apiWithStatus": "API error ({status}):",
+    "unknown": "Unexpected error:",
+    "datetime": {
+      "invalidFormat": "Invalid date/time format: \"{input}\"",
+      "invalidParse": "Could not parse as date/time: \"{input}\"",
+      "invalidParseHint": "Check the value. Use HH:mm for times (e.g. today 10:00)."
+    },
+    "service": {
+      "googleCredsNotSet": "Google credentials are not set.",
+      "googleCredsNotSetHint": "Run `calendit config set-google --id <id> --secret <secret>`.",
+      "outlookCredsNotSet": "Outlook credentials are not set.",
+      "outlookCredsNotSetHint": "Run `calendit config set-outlook --id <id>`."
+    },
+    "context": {
+      "missing": "Context '{name}' was not found.",
+      "missingHint": "Run `calendit config set-context {name} --service google --calendar primary` to create it.",
+      "loadFailed": "Failed to load configuration. Run 'calendit --help' for setup instructions.",
+      "loadFailedHint": "Run `calendit config set-google` (etc.) to set up."
+    }
+  },
+  "common": {
+    "hint": "Hint:"
+  },
+  "config": {
+    "cmd": {
+      "googleSaved": "Google credentials saved to config.",
+      "outlookSaved": "Outlook credentials saved to config.",
+      "contextSaved": "Context '{name}' saved.",
+      "contextDeleted": "Context '{name}' deleted.",
+      "localeSet": "UI locale set to '{locale}'.",
+      "macosTransportSet": "EventKit default transport is now '{value}' (applies when CALENDIT_EVENTKIT_BRIDGE is not set in the environment)."
+    },
+    "check": {
+      "header": "[CONFIG CHECK]",
+      "googleOk": "Google credentials : OK (id: {mask})",
+      "googleNotSet": "Google credentials : NOT SET (run: calendit config set-google --id <id> --secret <secret>)",
+      "outlookOk": "Outlook credentials: OK (id: {mask})",
+      "outlookNotSet": "Outlook credentials: NOT SET (run: calendit config set-outlook --id <id>)",
+      "contexts": "Contexts           : {list}",
+      "contextsNone": "Contexts           : none",
+      "fileLine": "Config file        : ~/.config/calendit/config.json (or CALENDIT_CONFIG_DIR override)",
+      "uiLocale": "UI locale          : {locale}"
+    }
+  },
+  "locale": {
+    "bootstrap": {
+      "prompt": "Choose your language for calendit messages:",
+      "choiceEn": "English",
+      "choiceJa": "Japanese (日本語)"
+    }
+  },
+  "eventkit": {
+    "bridge": {
+      "tokenMissing": "EventKit bridge token not found at {path}.",
+      "hintStartBridge": "Start the bridge: calendit macos bridge start, or open CalenditEventKitBridge.app (e.g. in /Applications).",
+      "connectFailed": "Could not connect to the EventKit bridge at {path}: {message}.",
+      "timeout": "EventKit bridge did not respond within {ms} ms.",
+      "invalidJson": "Invalid JSON from the EventKit bridge: {line}",
+      "closedWithoutResponse": "The EventKit bridge closed before sending a response.",
+      "bridgeError": "EventKit bridge error"
+    },
+    "helper": {
+      "missing": "EventKit helper binary not found.",
+      "hintBuild": "Set CALENDIT_EVENTKIT_HELPER, or run: (cd native/eventkit-helper && swift build -c release).",
+      "timeout": "EventKit helper did not complete within {ms} ms.",
+      "exitCode": "EventKit helper exited with code {code}."
+    }
+  },
+  "macos": {
+    "bridge": {
+      "openFailed": "Could not open the bridge app: {message}.",
+      "opened": "Launched {path}. Wait a few seconds, then run: calendit macos doctor",
+      "notFound": "CalenditEventKitBridge.app not found. Install a release, use Homebrew when available, or in a full clone run: calendit macos bridge build — then: calendit macos bridge start",
+      "buildNoSource": "EventKit bridge sources are not available next to this install. Use a full git clone, or set CALENDIT_EVENTKIT_BRIDGE_ROOT to your native/eventkit-bridge directory.",
+      "buildOk": "Build finished. App bundle: {path}",
+      "buildFailed": "EventKit bridge build failed: {message}",
+      "fetchIntro": "Download the calendit repository snapshot from GitHub, extract only native/eventkit-bridge, and place it under your calendit data directory (next to the bridge token when using the default location). A Swift build (see next step) will compile CalenditEventKitBridge.app.",
+      "fetchPlan": "• Source archive: {url}\n• Approx. download size: {sizeLine}\n• Extract to: {dest}\n• Then (optional) run the Swift build to create the .app under .build/ in that folder.",
+      "fetchSizeKnown": "about {mb} MiB (Content-Length from server)",
+      "fetchSizeUnknown": "unknown (HEAD did not return Content-Length; may be a few MB)",
+      "fetchConfirm": "Proceed with download and extract?",
+      "fetchCancel": "Canceled. No files were downloaded.",
+      "fetchBuildPrompt": "Run the Swift build now to create CalenditEventKitBridge.app? (requires Xcode Command Line Tools: swift, codesign)",
+      "fetchOk": "Fetched EventKit bridge sources to {path}. You can run: calendit macos bridge start (after build) or calendit macos setup.",
+      "fetchSkipsExisting": "Bridge sources already exist at {path}. Use --force to re-download, or run: calendit macos bridge build",
+      "fetchFailed": "Download or extract failed: {message}",
+      "fetchNoTty": "Non-interactive: use --yes to confirm the download, or use an interactive terminal."
+    },
+    "setup": {
+      "notDarwin": "macOS only.",
+      "noTransport": "EventKit is not available: no helper binary and no ready local bridge. Build the helper, start the EventKit bridge, or see docs.",
+      "tcc": "Allow Calendar access for CalenditEventKitBridge: System Settings → Privacy & Security → Calendars. When done, press Enter here to re-check.",
+      "pickCalendar": "Which calendar should this context use?",
+      "contextName": "Name for this context (e.g. my-mac):",
+      "contextNameRequired": "Context name is required.",
+      "saved": "Saved context '{name}' (macos, calendar {calendarId}).",
+      "noCalendars": "No calendars were returned (or access was denied).",
+      "startBridgePrompt": "The bridge does not seem to be running. Open CalenditEventKitBridge.app now?",
+      "canceled": "Setup canceled."
+    },
+    "external": {
+      "onlyDarwin": "macOS only.",
+      "badSub": "Subcommand must be `doctor`, `list-calendars`, or `shell`.",
+      "badSubHint": "Examples: calendit macos external doctor  |  calendit macos external list-calendars --json  |  calendit macos external shell",
+      "jsonOnlyForList": "`--json` applies only to `list-calendars`.",
+      "opened": "Opened Terminal.app — check the new window. Command: {cmd}",
+      "osascriptFailed": "Could not open Terminal.app via AppleScript: {message}",
+      "suggestionWhenDenied": "Calendar access is denied from this terminal. Run: calendit macos external doctor (permission prompt in Terminal), or calendit macos external shell (open Terminal here for all macos / query commands)."
+    }
+  }
+}

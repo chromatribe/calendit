@@ -2,9 +2,19 @@ import { Command } from "commander";
 import { CommandDeps, loadConfigIfExists } from "./shared.js";
 import { ConfigError, ValidationError } from "../core/errors.js";
 import { logger } from "../core/logger.js";
+import { t } from "../core/i18n.js";
+import { printAccountStatusTable } from "./accounts.js";
 
 export function registerAuthCommands(program: Command, deps: CommandDeps) {
   const authCmd = program.command("auth").description("Authentication management");
+
+  authCmd
+    .command("status")
+    .description("Same as `calendit accounts status` (deprecated name; use accounts status for clarity)")
+    .action(async () => {
+      logger.info("推奨: 全サービス横断の状態は `calendit accounts status` を使用してください。");
+      await printAccountStatusTable(deps);
+    });
 
   authCmd
     .command("login <service>")
@@ -19,8 +29,8 @@ export function registerAuthCommands(program: Command, deps: CommandDeps) {
         const creds = deps.config.getGoogleCreds();
         if (!creds) {
           throw new ConfigError(
-            "Google Client ID / Secret が未設定です。",
-            "docs/setup_google.md を参照、または `calendit config set-google --file <path>` を実行してください。",
+            t("errors.service.googleCredsNotSet"),
+            t("errors.auth.googleLoginHint"),
           );
         }
         logger.info("Google 認証フローを開始します...");
@@ -33,8 +43,8 @@ export function registerAuthCommands(program: Command, deps: CommandDeps) {
         const creds = deps.config.getOutlookCreds();
         if (!creds) {
           throw new ConfigError(
-            "Outlook Client ID が未設定です。",
-            "`calendit config set-outlook --id <id>` を先に実行してください。",
+            t("errors.service.outlookCredsNotSet"),
+            t("errors.service.outlookCredsNotSetHint"),
           );
         }
         logger.info("Outlook 認証フローを開始します...");

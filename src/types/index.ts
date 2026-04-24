@@ -1,4 +1,4 @@
-export type CalendarServiceType = 'google' | 'outlook';
+export type CalendarServiceType = 'google' | 'outlook' | 'macos';
 
 export interface CalendarEvent {
   id?: string;
@@ -7,6 +7,8 @@ export interface CalendarEvent {
   end: string;   // ISO 8601
   location?: string;
   description?: string;
+  /** メールアドレスのみ（macOS EventKit 等で使用） */
+  attendees?: string[];
   service: CalendarServiceType;
   calendarId: string;
 }
@@ -46,7 +48,18 @@ export interface OutlookCredentials {
   tenantId: string;
 }
 
+export interface AppUiConfig {
+  locale: "en" | "ja";
+  localePromptCompleted?: boolean;
+}
+
+export interface AppEventkitConfig {
+  defaultTransport: "auto" | "bridge" | "helper";
+}
+
 export interface FullAppConfig extends AppConfig {
   google_creds?: GoogleCredentials;
   outlook_creds?: OutlookCredentials;
+  ui?: AppUiConfig;
+  eventkit?: AppEventkitConfig;
 }
