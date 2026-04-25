@@ -23,3 +23,6 @@ coverage/
 # optional: Cursor plan files (remove this line if your team versions plans)
 .cursor/
 .agents/
+
+# Task logs (local only)
+docs/calendit-tasks/
