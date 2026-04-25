@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as fsp from "fs/promises";
 import * as os from "os";
 import * as path from "path";
 import { fileURLToPath } from "url";
@@ -63,12 +64,20 @@ export function resolveEventkitBridgeRepoPath(): string | null {
 
 /**
  * Resolve the CalenditEventKitBridge .app path for `calendit macos bridge start`.
- * Order: CALENDIT_EVENTKIT_BRIDGE_APP, ~/Applications, /Applications, repo .build (dev).
+ * Order: CALENDIT_EVENTKIT_BRIDGE_APP, Package.swift 隣の `.build/`（fetch / clone / BRIDGE_ROOT）,
+ * ~/Applications, /Applications, cwd 配下の開発用 `.build/`。
  */
 export function resolveEventkitBridgeAppBundlePath(): string | null {
   const fromEnv = process.env.CALENDIT_EVENTKIT_BRIDGE_APP?.trim();
   if (fromEnv && isAppBundle(fromEnv)) {
     return fromEnv;
+  }
+  const bridgeRoot = resolveEventkitBridgeRepoPath();
+  if (bridgeRoot) {
+    const fromRepoBuild = path.join(bridgeRoot, ".build", "CalenditEventKitBridge.app");
+    if (isAppBundle(fromRepoBuild)) {
+      return fromRepoBuild;
+    }
   }
   const homeApps = path.join(os.homedir(), "Applications/CalenditEventKitBridge.app");
   if (isAppBundle(homeApps)) {
@@ -83,4 +92,29 @@ export function resolveEventkitBridgeAppBundlePath(): string | null {
     return dev;
   }
   return null;
+}
+
+/** `~/Applications/CalenditEventKitBridge.app` へ上書きコピー（TCC 用の安定パス向け）。 */
+export async function installBuiltBridgeAppToUserApplications(sourceApp: string): Promise<{ ok: boolean; dest: string; message?: string }> {
+  const dest = path.join(os.homedir(), "Applications", "CalenditEventKitBridge.app");
+  try {
+    await fsp.mkdir(path.dirname(dest), { recursive: true });
+    await fsp.rm(dest, { recursive: true, force: true });
+    await fsp.cp(sourceApp, dest, { recursive: true, force: true });
+    return { ok: true, dest };
+  } catch (e) {
+    return { ok: false, dest, message: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+/** `/Applications/CalenditEventKitBridge.app` へ上書きコピー（権限が無い場合は失敗し得る）。 */
+export async function installBuiltBridgeAppToSystemApplications(sourceApp: string): Promise<{ ok: boolean; dest: string; message?: string }> {
+  const dest = "/Applications/CalenditEventKitBridge.app";
+  try {
+    await fsp.rm(dest, { recursive: true, force: true });
+    await fsp.cp(sourceApp, dest, { recursive: true, force: true });
+    return { ok: true, dest };
+  } catch (e) {
+    return { ok: false, dest, message: e instanceof Error ? e.message : String(e) };
+  }
 }

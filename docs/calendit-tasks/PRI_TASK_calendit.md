@@ -104,11 +104,13 @@ crmt       google    primary      user@example.com        OK
 - **2026-04-24**: **`calendit macos bridge build`**（Swift ブリッジ `.app` 組立、`build-app-bundle.sh` 委譲）。[spec/history/old/2026-0424-01.07.md](../../spec/history/old/2026-0424-01.07.md)
 - **2026-04-24**: **`calendit macos bridge fetch`**（GitHub 取得・説明+サイズ+確認、任意ビルド）。 [spec/history/old/2026-0424-01.08.md](../../spec/history/old/2026-0424-01.08.md)
 - **2026-04-25**: **ドキュメント再構築**（非エンジニア向け校正・GitHub向け装飾・AIセクション分離）。製品バージョン `1.20260425.3`。 [spec/history/1.20260425.3.md](../../spec/history/1.20260425.3.md)
-- **2026-04-25**: **開発ルールの同期・更新**（メジャーバージョン更新基準の明記、`.cursor` / `.agents` 同期）。製品バージョン `1.20260425.5`。 [spec/history/1.20260425.5.md](../../spec/history/1.20260425.5.md)
+- **2026-04-25**: **開発ルールの同期・更新**（メジャーバージョン更新基準の明記、`.cursor` / `.agents` 同期）。製品バージョン `1.20260425.05`。 [spec/history/1.20260425.05.md](../../spec/history/1.20260425.05.md)
+- **2026-04-25**: **徹底テスト用シナリオ集の策定**（ツール・AI・タスクリスト連携）。製品バージョン `1.20260425.06`。 [spec/history/1.20260425.06.md](../../spec/history/1.20260425.06.md)
 - **2026-04-25**: **`apply` 同期レンジ・Google `timeZone`・移動時 WARN**（`query` 期間パース集約含む）。 [spec/history/1.20260425.4.md](../../spec/history/1.20260425.4.md)
 - **2026-04-25**: **Outlook `cal list` がカレンダーグループ配下も網羅**（Graph の `calendarGroups` + ページング、ID 重複排除）。製品バージョン `1.20260425.6`。 [spec/history/1.20260425.6.md](../../spec/history/1.20260425.6.md)
 - **2026-04-25**: **変更履歴ファイルの命名**: `spec/history` は `[MajorVersion].YYYYmmdd.[Sequence].md`、H1 はファイル名（`.md` 除く）と一致（`.cursor/rules/rule.mdc` §1）。
 - **2026-04-26**: **Outlook 複数 MSAL アカウント時の誤フォールバック修正**（`accountId` 照合の正規化、`ACCOUNT MISMATCH`、一致なし時は API 呼び出し前にエラー）。製品バージョン `1.20260426.1`。 [spec/history/1.20260426.1.md](../../spec/history/1.20260426.1.md)
+- **2026-04-26**: **EventKit ブリッジ**: `bridge start` が fetch/build 先の `.build/.app` を検出、ビルド後に `~/Applications`・`/Applications` へコピー試行（env でスキップ可）。製品バージョン `1.20260426.2`。 [spec/history/1.20260426.2.md](../../spec/history/1.20260426.2.md)
 
 ---
 

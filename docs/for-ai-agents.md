@@ -22,7 +22,7 @@
 | `src/core/auth.ts` | OAuth（Google / Outlook） |
 | `src/core/eventkitHelper.ts` | EventKit: **ブリッジ解決**（`CALENDIT_EVENTKIT_BRIDGE` 未指定なら macOS で `bridge.token`+有効ソケットがあれば自動ブリッジ、`=0` で常に `eventkit-helper`）→ 失敗時は `CALENDIT_EVENTKIT_BRIDGE_FALLBACK=1` でのみヘルパー spawn |
 | `src/core/eventkitEnvFromConfig.ts` | `loadOptional` 後に `eventkit.defaultTransport` を `process.env` に反映（シェル未設定時のみ） |
-| `src/core/macosBridgeApp.ts` | `CalenditEventKitBridge.app` 候補パス（`macos bridge start`） |
+| `src/core/macosBridgeApp.ts` | `CalenditEventKitBridge.app` 候補パス（`macos bridge start`）、fetch/build 先 `.build` の解決、ビルド後の `~/Applications`・`/Applications` コピー補助 |
 | `src/services/*.ts` | `GoogleCalendarService` `OutlookCalendarService` `MacosCalendarService` `MockCalendarService` |
 | `src/core/accountStatus.ts` | `accounts status` の行生成（macOS の ACCOUNT 列は `list-calendars` の `sourceTitle`） |
 | `native/eventkit-helper/` | Swift バイナリ `eventkit-helper`（子プロセス） |

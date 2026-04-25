@@ -22,6 +22,8 @@ import {
   probeHttpArchiveSizeBytes,
 } from "../core/eventkitBridgeFetch.js";
 import {
+  installBuiltBridgeAppToSystemApplications,
+  installBuiltBridgeAppToUserApplications,
   resolveEventkitBridgeAppBundlePath,
   resolveEventkitBridgeRepoPath,
 } from "../core/macosBridgeApp.js";
@@ -65,6 +67,33 @@ function isConnectFailure(msg: string): boolean {
 
 function isInteractiveTty(): boolean {
   return Boolean(process.stdin.isTTY && process.stdout.isTTY);
+}
+
+/** ビルド済み `.app` を `~/Applications` と `/Applications` にコピー（失敗はログのみ）。`CALENDIT_BRIDGE_BUILD_SKIP_INSTALL=1` で無効化。 */
+async function finalizeBridgeInstallCopies(bridgeRoot: string): Promise<void> {
+  const bundlePath = path.join(bridgeRoot, ".build", "CalenditEventKitBridge.app");
+  if (!fs.existsSync(path.join(bundlePath, "Contents", "Info.plist"))) {
+    return;
+  }
+  if (process.env.CALENDIT_BRIDGE_BUILD_SKIP_INSTALL?.trim() === "1") {
+    logger.info(t("macos.bridge.buildCopySkipped"));
+    return;
+  }
+  const user = await installBuiltBridgeAppToUserApplications(bundlePath);
+  if (user.ok) {
+    logger.info(t("macos.bridge.buildCopyUserOk", { path: user.dest }));
+  } else {
+    logger.warn(t("macos.bridge.buildCopyUserWarn", { message: user.message ?? "" }));
+  }
+  if (process.env.CALENDIT_BRIDGE_BUILD_SKIP_SYSTEM_APP?.trim() === "1") {
+    return;
+  }
+  const sys = await installBuiltBridgeAppToSystemApplications(bundlePath);
+  if (sys.ok) {
+    logger.info(t("macos.bridge.buildCopySystemOk", { path: sys.dest }));
+  } else {
+    logger.info(t("macos.bridge.buildCopySystemSkipped", { message: sys.message ?? "" }));
+  }
 }
 
 /** Run `scripts/build-app-bundle.sh` in `bridgeRoot` and log success. */
@@ -185,6 +214,7 @@ export function registerMacosCommands(program: Command, deps: CommandDeps) {
         await runBridgeBuildFromRoot(bridgeRoot);
         const outApp = path.join(bridgeRoot, ".build/CalenditEventKitBridge.app");
         logger.info(t("macos.bridge.buildOk", { path: outApp }));
+        await finalizeBridgeInstallCopies(bridgeRoot);
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         logger.error(t("macos.bridge.buildFailed", { message }));
@@ -211,6 +241,7 @@ export function registerMacosCommands(program: Command, deps: CommandDeps) {
         await runBridgeBuildFromRoot(bridgeRoot);
         const outApp = path.join(bridgeRoot, ".build/CalenditEventKitBridge.app");
         logger.info(t("macos.bridge.buildOk", { path: outApp }));
+        await finalizeBridgeInstallCopies(bridgeRoot);
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         logger.error(t("macos.bridge.buildFailed", { message }));

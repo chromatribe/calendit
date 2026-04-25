@@ -128,13 +128,15 @@ calendit macos bridge fetch -y -b
 
 `native/eventkit-bridge` を Swift ビルドし、`build-app-bundle.sh` と同じ手順で **`CalenditEventKitBridge.app`** を `.build` に生成する。**上記 `bridge fetch` 後**、または**git リポジトリのフル作業木**、または **`CALENDIT_EVENTKIT_BRIDGE_ROOT` で指せる**ときに使える。グローバル `npm install -g` のパッケージには Swift ソースは同梱されない（**`bridge fetch` で補完**可）。**Xcode / Command Line Tools**（`swift`）と **codesign** が通る必要がある。
 
+ビルド成功後、既定では **`~/Applications/CalenditEventKitBridge.app`** と **`/Applications/CalenditEventKitBridge.app`** へ上書きコピーを試みる（`/Applications` は権限が無い場合はスキップしログに案内のみ）。コピー自体を止めたいときは **`CALENDIT_BRIDGE_BUILD_SKIP_INSTALL=1`**、システム `/Applications` へのコピーだけ止めたいときは **`CALENDIT_BRIDGE_BUILD_SKIP_SYSTEM_APP=1`**。
+
 ```bash
 calendit macos bridge build
 ```
 
 ### `macos bridge start`
 
-`CalenditEventKitBridge.app` を `open` で起動（ブリッジ常駐をこのマシンで初めて使うとき、または一度止めたあと）。候補パス: `CALENDIT_EVENTKIT_BRIDGE_APP`（絶対パス）、`~/Applications` および `/Applications/CalenditEventKitBridge.app`、リポジトリ内 `native/eventkit-bridge/.build/CalenditEventKitBridge.app`（ソースからの開発時）。見つからなければインストール案内を出して終了する。
+`CalenditEventKitBridge.app` を `open` で起動（ブリッジ常駐をこのマシンで初めて使うとき、または一度止めたあと）。候補パス（先勝ち）: `CALENDIT_EVENTKIT_BRIDGE_APP`（絶対パス）、**`Package.swift` があるブリッジルート直下の** `.build/CalenditEventKitBridge.app`（`bridge fetch` の展開先や `CALENDIT_EVENTKIT_BRIDGE_ROOT` を含む）、`~/Applications`、`/Applications`、カレントディレクトリの `native/eventkit-bridge/.build/...`（リポジトリ上での開発時）。見つからなければインストール案内を出して終了する。
 
 ```bash
 calendit macos bridge start

@@ -1,7 +1,7 @@
 # カレンダー操作CLIツール `calendit` 仕様書 (最新版)
 
 ## バージョン管理
-- **現在のバージョン**: `1.20260426.1` (Beta) — 製品表記。npm の `package.json#version` は [semver](https://semver.org/) 準拠（先頭ゼロなしの整数表記）
+- **現在のバージョン**: `1.20260425.06` (Beta) — 製品表記。npm の `package.json#version` は [semver](https://semver.org/) 準拠（先頭ゼロなしの整数表記）
 - **最終更新日**: 2026-04-26
 
 ---
@@ -38,7 +38,7 @@ graph TD
 - **`calendit auth status`**: `accounts status` と同一形式の表を出力する。将来的には `accounts` への統合を推奨する案内をログに表示する場合がある。
 - **Google**: トークンファイルの有効期限・`refresh_token` の有無で `OK` / `NOT LOGGED IN` / `EXPIRED` / `NOT CONFIGURED` を判定する。
 - **Outlook**: `config.json` に `outlook_creds` が無い場合は **`NOT CONFIGURED`**。設定済みなら MSAL キャッシュ上のアカウント照合で `OK` / `NOT LOGGED IN` / **`ACCOUNT MISMATCH`** 等を判定する。コンテキストに `accountId`（メール等）がある場合は **`username` / `homeAccountId` と大小文字無視で照合**し、キャッシュに一致が無いが別アカウントは存在するときは **`ACCOUNT MISMATCH`**（以前は誤って先頭アカウントへフォールバックし得た）。`accountId` 未設定のときのみ先頭アカウントを用いる。
-- **macOS（EventKit）**: OAuth は不要。**既定**: macOS 上で `CALENDIT_EVENTKIT_BRIDGE` 未指定のとき、**`bridge.token` と有効な Unix ソケット**が `~/Library/Application Support/calendit/`（または `CALENDIT_CONFIG_DIR` 使用時はその下）に存在すれば **常駐ブリッジ**を自動使用。`CALENDIT_EVENTKIT_BRIDGE=0` 等で **eventkit-helper** 子プロセスに固定可。`config set-macos-transport` により、シェル未設定時の既定（`auto` / `bridge` / `helper`）を `config.json` に永続可。TCC 許可の主体は原則 **CalenditEventKitBridge.app** 側（`calendit macos bridge start` / `macos setup` 参照）。いずれも `calendarIdentifier` の存在等で接続を判定する（詳細は `docs/eventkit-bridge.md`）。
+- **macOS（EventKit）**: OAuth は不要。**既定**: macOS 上で `CALENDIT_EVENTKIT_BRIDGE` 未指定のとき、**`bridge.token` と有効な Unix ソケット**が `~/Library/Application Support/calendit/`（または `CALENDIT_CONFIG_DIR` 使用時はその下）に存在すれば **常駐ブリッジ**を自動使用。`CALENDIT_EVENTKIT_BRIDGE=0` 等で **eventkit-helper** 子プロセスに固定可。`config set-macos-transport` により、シェル未設定時の既定（`auto` / `bridge` / `helper`）を `config.json` に永続可。TCC 許可の主体は原則 **CalenditEventKitBridge.app** 側（`calendit macos bridge start` / `macos setup` 参照）。**`macos bridge build`** 成功後は既定で **`~/Applications` と `/Applications` へ .app をコピー試行**（スキップ用 env あり）。**`macos bridge start`** は `CALENDIT_EVENTKIT_BRIDGE_APP` の次に **`bridge fetch` / `BRIDGE_ROOT` 解決先の `.build/CalenditEventKitBridge.app`** を検索する。いずれも `calendarIdentifier` の存在等で接続を判定する（詳細は `docs/eventkit-bridge.md`）。
 - **macOS（参加者）**: `add --attendees` 等で渡した参加者を EventKit 経由で確実に書き戻すことは、Swift / EventKit 側の挙動・権限の整理が未スパイクのため現時点では保証しない（今後の検証課題）。
 - **体験**: コマンド実行時にブラウザが開き、ユーザーがログイン・許可を行うと、ローカルの `calendit` がトークンを取得・保存します。
 - **保存と永続化 (macOS重視)**: 

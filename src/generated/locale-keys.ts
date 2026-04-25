@@ -58,6 +58,11 @@ export type LocaleKey =
   | "locale.bootstrap.choiceEn"
   | "locale.bootstrap.choiceJa"
   | "locale.bootstrap.prompt"
+  | "macos.bridge.buildCopySkipped"
+  | "macos.bridge.buildCopySystemOk"
+  | "macos.bridge.buildCopySystemSkipped"
+  | "macos.bridge.buildCopyUserOk"
+  | "macos.bridge.buildCopyUserWarn"
   | "macos.bridge.buildFailed"
   | "macos.bridge.buildNoSource"
   | "macos.bridge.buildOk"
@@ -151,6 +156,11 @@ export const LOCALE_KEYS: readonly LocaleKey[] = [
   "locale.bootstrap.choiceEn",
   "locale.bootstrap.choiceJa",
   "locale.bootstrap.prompt",
+  "macos.bridge.buildCopySkipped",
+  "macos.bridge.buildCopySystemOk",
+  "macos.bridge.buildCopySystemSkipped",
+  "macos.bridge.buildCopyUserOk",
+  "macos.bridge.buildCopyUserWarn",
   "macos.bridge.buildFailed",
   "macos.bridge.buildNoSource",
   "macos.bridge.buildOk",
