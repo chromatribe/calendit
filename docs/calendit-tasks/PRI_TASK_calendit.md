@@ -44,7 +44,7 @@
 #### 認証・コンテキスト状態一覧
 
 - [x] `calendit auth status` 実装（当初要件の「一覧表示」は `accounts status` が主担当）
-- [ ] 利用者向けドキュメントに、トークン確認の考え方（Google ファイル + `expiry_date`、Outlook MSAL + `accountId` 一致）を短く掲載する（例: `docs/commands.md` または README リンク）
+- [x] 利用者向けドキュメントに、トークン確認の考え方（Google ファイル + `expiry_date`、Outlook MSAL + `accountId` 一致）を短く掲載する（例: `docs/commands.md` または README リンク）
 
 **当初要件メモ（出力イメージ）**
 
@@ -63,9 +63,9 @@ crmt       google    primary      user@example.com        OK
 | Google | 可能 | コンテキストごとに別トークンファイル |
 | Outlook | 可能 | MSAL キャッシュに複数アカウント共存 |
 
-- [ ] **Google**: 2 アカウント利用手順をドキュメント化（ログイン → `set-context` → `query` の流れ）
-- [ ] **Outlook**: 2 アカウント利用手順をドキュメント化（`--account` に正確なメールが必要な注意を含む）
-- [ ] 上記手順の**動作検証**（Google・Outlookそれぞれ最低1パス）
+- [x] **Google**: 2 アカウント利用手順をドキュメント化（ログイン → `set-context` → `query` の流れ）
+- [x] **Outlook**: 2 アカウント利用手順をドキュメント化（`--account` に正確なメールが必要な注意を含む）
+- [x] 上記手順の**動作検証**（Google・Outlookそれぞれ最低1パス）
 
 ### v1.2.0 以降（ロードマップ由来）
 
@@ -103,7 +103,7 @@ crmt       google    primary      user@example.com        OK
 - **2026-04-24**: `npm` 向け `package.json#version` を [semver](https://semver.org/) 準拠（`2026.4.24` 等）に揃え、`files` 白リスト・`prepack` で tarball を 50MB+ から圧縮。clone 直後は `npm run build` 必須。詳細 [spec/history/2026-0424-01.06.md](../../spec/history/2026-0424-01.06.md)。
 - **2026-04-24**: **`calendit macos bridge build`**（Swift ブリッジ `.app` 組立、`build-app-bundle.sh` 委譲）。[spec/history/2026-0424-01.07.md](../../spec/history/2026-0424-01.07.md)
 - **2026-04-24**: **`calendit macos bridge fetch`**（GitHub 取得・説明+サイズ+確認、任意ビルド）。 [spec/history/2026-0424-01.08.md](../../spec/history/2026-0424-01.08.md)
-- **2026-04-25**: **ドキュメント再構築**（非エンジニア向け校正・GitHub向け装飾・AIセクション分離）。製品バージョン `2026.4.29`。 [spec/history/2026-0425-01.03.md](../../spec/history/2026-0425-01.03.md)
+- **2026-04-25**: **ドキュメント再構築**（非エンジニア向け校正・GitHub向け装飾・AIセクション分離）。製品バージョン `1.20260425.03`。 [spec/history/1.20260425.03.md](../../spec/history/1.20260425.03.md)
 
 ---
 
