@@ -104,6 +104,7 @@ crmt       google    primary      user@example.com        OK
 - **2026-04-24**: **`calendit macos bridge build`**（Swift ブリッジ `.app` 組立、`build-app-bundle.sh` 委譲）。[spec/history/2026-0424-01.07.md](../../spec/history/2026-0424-01.07.md)
 - **2026-04-24**: **`calendit macos bridge fetch`**（GitHub 取得・説明+サイズ+確認、任意ビルド）。 [spec/history/2026-0424-01.08.md](../../spec/history/2026-0424-01.08.md)
 - **2026-04-25**: **ドキュメント再構築**（非エンジニア向け校正・GitHub向け装飾・AIセクション分離）。製品バージョン `1.20260425.03`。 [spec/history/1.20260425.03.md](../../spec/history/1.20260425.03.md)
+- **2026-04-25**: **開発ルールの同期・更新**（メジャーバージョン更新基準の明記、`.cursor` / `.agents` 同期）。製品バージョン `1.20260425.05`。 [spec/history/1.20260425.05.md](../../spec/history/1.20260425.05.md)
 
 ---
 

@@ -1,7 +1,7 @@
 # カレンダー操作CLIツール `calendit` 仕様書 (最新版)
 
 ## バージョン管理
-- **現在のバージョン**: `1.20260425.03` (Beta) — 製品表記。npm の `package.json#version` は [semver](https://semver.org/) 準拠
+- **現在のバージョン**: `1.20260425.05` (Beta) — 製品表記。npm の `package.json#version` は [semver](https://semver.org/) 準拠
 - **最終更新日**: 2026-04-25
 
 ---
