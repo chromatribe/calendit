@@ -403,9 +403,17 @@ export function registerMacosCommands(program: Command, deps: CommandDeps) {
           writeStdoutLine(t("macos.doctor.bridgeAppUnresolved"));
         }
       }
-      writeStdoutLine(
-        `eventkit-helper: ${p ?? (socketPath ? "(not used — doctor uses the bridge above)" : "(not found — build from repo or set CALENDIT_EVENTKIT_HELPER)")}`,
-      );
+      if (socketPath) {
+        if (p) {
+          writeStdoutLine(t("macos.doctor.helperBinaryWhenBridge", { path: p }));
+        } else {
+          writeStdoutLine(t("macos.doctor.helperBinaryWhenBridgeMissing"));
+        }
+      } else {
+        writeStdoutLine(
+          `eventkit-helper: ${p ?? "(not found — build from repo or set CALENDIT_EVENTKIT_HELPER)"}`,
+        );
+      }
       if (!hasEventkitTransport()) {
         writeStdoutLine("EventKit: no helper and no local bridge. Build helper or start CalenditEventKitBridge.app.");
         return;
@@ -413,11 +421,11 @@ export function registerMacosCommands(program: Command, deps: CommandDeps) {
       try {
         const j = await eventkitDoctorJson();
         writeStdoutLine(JSON.stringify(j, null, 2));
-        if (j.calendarAccess === "denied" && isLikelyIdeIntegratedTerminal()) {
+        if (j.calendarAccess === "denied") {
           writeStdoutLine("");
           if (j.transport === "bridge") {
             writeStdoutLine(t("macos.doctor.bridgeDeniedHint"));
-          } else {
+          } else if (isLikelyIdeIntegratedTerminal()) {
             writeStdoutLine(t("macos.external.suggestionWhenDenied"));
           }
         }

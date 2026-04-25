@@ -125,7 +125,9 @@
       "canceled": "Setup canceled."
     },
     "doctor": {
-      "bridgeDeniedHint": "Using the bridge, but calendar access is denied. Check System Settings → Privacy & Security → Calendars and grant **CalenditEventKitBridge** full access (TCC applies to the .app, not this terminal).",
+      "bridgeDeniedHint": "Using the bridge, but calendar access is denied. In System Settings → Privacy & Security → Calendars, enable **CalenditEventKitBridge** (TCC is tied to the .app, not this terminal). If you just rebuilt or copied a new .app: quit the bridge from the menu bar, open the .app once from Finder (double-click the path printed above), accept the prompt if shown, then toggle the Calendars switch for this app off and on if it stays denied.",
+      "helperBinaryWhenBridge": "eventkit-helper exists at {path} — not used for this doctor check while the bridge socket above is active; calendar permission must be granted to CalenditEventKitBridge.app.",
+      "helperBinaryWhenBridgeMissing": "eventkit-helper: no binary found on disk (normal when you rely only on the bridge).",
       "bridgeAppResolved": "CalenditEventKitBridge.app (same resolution as `macos bridge start`): {path}",
       "bridgeAppUnresolved": "CalenditEventKitBridge.app: could not resolve a bundle path (run `macos bridge build` / `bridge start`, or set CALENDIT_EVENTKIT_BRIDGE_APP)."
     },

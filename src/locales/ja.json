@@ -125,7 +125,9 @@
       "canceled": "セットアップを中止しました。"
     },
     "doctor": {
-      "bridgeDeniedHint": "ブリッジ経由ですがカレンダーが拒否されています。システム設定 → プライバシーとセキュリティ → カレンダー で **CalenditEventKitBridge** のフルアクセスを確認してください（このターミナルではなく .app 側の許可です）。",
+      "bridgeDeniedHint": "ブリッジ経由ですがカレンダーが拒否されています。システム設定 → プライバシーとセキュリティ → カレンダー で **CalenditEventKitBridge** をオンにしてください（許可はこのターミナルではなく .app に付きます）。ビルド直後や .app を差し替えた直後は、メニューバーからブリッジを終了し、上に表示したパスの .app を Finder で一度ダブルクリックして起動し、ダイアログが出たら許可したうえで、システム設定の同一覧でスイッチを一度オフ→オンしてから `macos doctor` を再実行してください。",
+      "helperBinaryWhenBridge": "eventkit-helper は {path} にありますが、上記ソケットでブリッジが動いている間はこの doctor では使われません。カレンダー許可は **CalenditEventKitBridge.app** 側です。",
+      "helperBinaryWhenBridgeMissing": "eventkit-helper: ディスク上に見つかりません（ブリッジのみ運用なら問題ありません）。",
       "bridgeAppResolved": "CalenditEventKitBridge.app（`macos bridge start` と同じ候補解決）: {path}",
       "bridgeAppUnresolved": "CalenditEventKitBridge.app: 候補を解決できませんでした（`macos bridge build` / `bridge start`、または CALENDIT_EVENTKIT_BRIDGE_APP を設定してください）。"
     },
