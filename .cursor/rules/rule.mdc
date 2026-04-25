@@ -1,5 +1,5 @@
 ---
-trigger: always_on
+description: 
 alwaysApply: true
 ---
 
@@ -30,6 +30,10 @@ alwaysApply: true
 - **ドキュメント更新**:
   - `spec/spec.md`: バージョン番号と最新仕様を反映。
   - `spec/history/[Version].md`: そのバージョンの詳細な変更内容を記録。
+- **変更履歴（`spec/history`）のファイル名と H1**:
+  - **ファイル名**: `[MajorVersion].YYYYmmdd.[Sequence].md` とする（例: `1.20260425.06.md`）。`YYYYmmdd` は 8 桁の西暦日付、`Sequence` はその日の変更エントリ通番。
+  - **H1 見出し**: ファイル名から `.md` を除いた文字列と**完全一致**とする（例: `1.20260425.06.md` なら先頭行は `# 1.20260425.06`）。本文の章立ては `##` 以降で従来どおり。
+  - **旧形式**: 以前の `YYYY-mmdd-XX.XX.md` 命名のファイルは **`spec/history/old/`** に置き、新規追加は行わない（参照用アーカイブ）。
 
 ## 2. 実装・設計の原則
 - **コンテキスト（用途）の尊重**: `--set <name>` オプションにより、カレンダーIDや認証情報を切り替えられるように実装する。
@@ -56,7 +60,7 @@ alwaysApply: true
 ## 5. 仕様書と履歴の整合性
 - **転記の義務**: 議論され、実装要件に追加・変更された内容は、必ず以下のファイルに確実に転記すること。
     - `spec/spec.md`: 最新の全体仕様を反映。
-    - `spec/history/[Version].md`: 各バージョンの変更詳細を記録。
+    - `spec/history/[MajorVersion].YYYYmmdd.[Sequence].md`: 各バージョンの変更詳細を記録（§1 のファイル名・H1 ルールに従う）。
     - `docs/calendit-tasks/PRI_TASK_calendit.md`: 着手順・チェックリスト・タイムライン（§4 と同一タイミング）。
     - ユーザー向け文言: `src/locales/*.json`（`CONTRIBUTING.md` の i18n 節と同タイミングで更新）。
 - **不一致の禁止**: 「実装されているが仕様書にない」または「仕様書にあるが実装が古い」状態を放置しない。

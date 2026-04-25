@@ -29,7 +29,7 @@
 | `native/eventkit-bridge/` | Swift 常駐ブリッジ（Unix ソケット + `bridge.token`） |
 | `docs/tests.md` | **自律テストの正**。`src/test_runner.ts` がパースして実行 |
 | `spec/spec.md` | 製品仕様の要約（バージョン表記あり） |
-| `spec/history/*.md` | 版ごとの変更ログ |
+| `spec/history/*.md` | 版ごとの変更ログ（旧命名 `YYYY-mmdd-XX.XX` は [`spec/history/old/`](../spec/history/old/)） |
 
 ---
 
@@ -97,9 +97,9 @@
 - `package.json` の `version`  
 - `spec/spec.md` の現在バージョン行  
 - `docs/tests.md` のタイトル行のバージョン  
-- `spec/history/YYYY-mmdd-XX.XX.md`  
+- `spec/history/[MajorVersion].YYYYmmdd.[Sequence].md`（ファイル名＝H1 先頭行。例: `1.20260425.06.md` → `# 1.20260425.06`）  
 
-方針は **development.md** の「バージョン管理」節に従う。
+方針は **development.md** の「バージョン管理」節と [.cursor/rules/rule.mdc](../.cursor/rules/rule.mdc) §1 に従う。
 
 ---
 

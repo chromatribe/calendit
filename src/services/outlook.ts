@@ -3,6 +3,7 @@ import { AbstractCalendarService } from "./base.js";
 import { CalendarEvent, CalendarInfo, ProviderCapabilities } from "../types/index.js";
 import { ApiError, AuthError } from "../core/errors.js";
 import { logger } from "../core/logger.js";
+import { graphCalendarItemToCalendarInfo, mergeOutlookCalendarsFirstWins } from "../core/outlookCalendarList.js";
 
 export class OutlookCalendarService extends AbstractCalendarService {
   private pca: PublicClientApplication;
@@ -46,13 +47,12 @@ export class OutlookCalendarService extends AbstractCalendarService {
     return response.accessToken;
   }
 
-  private async request(path: string, options: RequestInit = {}) {
+  private async requestUrl(url: string, options: RequestInit = {}): Promise<any> {
     const token = await this.getAccessToken();
     const headers = new Headers(options.headers);
     headers.set("Authorization", `Bearer ${token}`);
     headers.set("Content-Type", "application/json");
 
-    const url = `https://graph.microsoft.com/v1.0${path}`;
     logger.debug("Outlook request", { url, method: options.method || "GET" });
     const response = await fetch(url, {
       ...options,
@@ -79,15 +79,40 @@ export class OutlookCalendarService extends AbstractCalendarService {
     return response.json();
   }
 
+  private async request(path: string, options: RequestInit = {}) {
+    return this.requestUrl(`https://graph.microsoft.com/v1.0${path}`, options);
+  }
+
+  /**
+   * GET 1 本の相対 path から `@odata.nextLink` まで辿って `value` を集約する。
+   */
+  private async requestPaginatedList(path: string): Promise<any[]> {
+    const items: any[] = [];
+    let nextUrl: string | null = `https://graph.microsoft.com/v1.0${path}`;
+    while (nextUrl) {
+      const data = await this.requestUrl(nextUrl);
+      if (data?.value?.length) {
+        items.push(...data.value);
+      }
+      nextUrl = data?.["@odata.nextLink"] ?? null;
+    }
+    return items;
+  }
+
   async listCalendars(): Promise<CalendarInfo[]> {
-    const data = await this.request("/me/calendars");
-    return data.value.map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      service: "outlook",
-      isPrimary: item.isDefaultCalendar || false,
-      canEdit: item.canEdit || true,
-    }));
+    const layers: CalendarInfo[][] = [];
+
+    const topLevel = await this.requestPaginatedList("/me/calendars");
+    layers.push(topLevel.map((item: any) => graphCalendarItemToCalendarInfo(item)));
+
+    const groups = await this.requestPaginatedList("/me/calendarGroups");
+    for (const group of groups) {
+      const groupId = group.id as string;
+      const inGroup = await this.requestPaginatedList(`/me/calendarGroups/${encodeURIComponent(groupId)}/calendars`);
+      layers.push(inGroup.map((item: any) => graphCalendarItemToCalendarInfo(item)));
+    }
+
+    return mergeOutlookCalendarsFirstWins(layers);
   }
 
   async createCalendar(name: string): Promise<CalendarInfo> {

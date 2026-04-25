@@ -114,15 +114,19 @@ calendit add --summary "Test" --start "tomorrow 10:00" --dry-run
 
 ## バージョン管理
 
-バージョン番号は `YYYY-mmdd-[Sequence]` 形式 (例: `2026-0416-01.02`) で管理されています。
+`package.json` の製品バージョンは **`[MajorVersion].YYYYmmdd.[Sequence]`** 形式（例: `1.20260425.06`）。[.cursor/rules/rule.mdc](../.cursor/rules/rule.mdc) §1 に従う。
 
 変更を加えた際は以下のドキュメントを必ず更新してください:
 
 | ファイル | 更新内容 |
 |---|---|
-| `src/index.ts` | `.version("...")` の文字列 |
+| `package.json` | `version`（上記形式） |
 | `spec/spec.md` | 最新バージョン番号と変更内容の概要 |
-| `spec/history/YYYY-mmdd-XX.XX.md` | その版での詳細変更ログ |
+| `spec/history/[MajorVersion].YYYYmmdd.[Sequence].md` | その版での詳細変更ログ。**ファイル名（拡張子除く）を H1 見出しの1行目に使う**（§1 と同じ） |
+| `spec/history/old/*.md` | 旧命名（`YYYY-mmdd-XX.XX`）の参照用アーカイブ。新規ファイルは置かない。 |
+| `docs/tests.md` | タイトル行の版表記（併記可） |
+
+**目次**: [spec/history/README.md](../spec/history/README.md)
 
 ---
 
@@ -152,7 +156,7 @@ npm publish
 ```
 
 - 未ログインの場合は `npm login`（2FA 利用の npm アカウントはワンタイムパスやデバイス承認が必要なことがある）。
-- 同一バージョンの再 publish は不可。`package.json` の `version` を [プロジェクトのバージョン形式](../.cursor/rules/rule.mdc)（`YYYY-mmdd-01.xx` 等）に従い上げ、`spec` / `spec/history` 更新は同一作業単位で行う。
+- 同一バージョンの再 publish は不可。`package.json` の `version` を [プロジェクトのバージョン形式](../.cursor/rules/rule.mdc)（`1.YYYYmmdd.seq`）に従い上げ、`spec` / `spec/history` 更新は同一作業単位で行う。
 
 ---
 

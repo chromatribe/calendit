@@ -14,7 +14,7 @@
 
 - **運用**: 着手順と残タスクの「正」が本ファイルに集約され、`spec/spec.md` は仕様の正として二重管理を最小化する。
 - **v1.1.0**: macOS EventKit 経路・横断 `accounts status` が利用可能で、Google / Outlook の複数アカウント利用手順がドキュメント化され検証済みであること。
-- **品質**: 変更に伴い `spec/history/` と `docs/tests.md` の更新方針（既存ルール）を満たす。
+- **品質**: 変更に伴い `spec/history/`（新規はルートの `[MajorVersion].YYYYmmdd.[Sequence].md`、旧形式は `old/` 参照）と `docs/tests.md` の更新方針（既存ルール）を満たす。
 
 ---
 
@@ -98,13 +98,16 @@ crmt       google    primary      user@example.com        OK
 - **2026-04-23**: UI ローカライズ基盤（英語既定・初回言語対話・`CALENDIT_LOCALE` / `--locale`）、ロケール整合チェック・`CONTRIBUTING.md`・CI。残タスクは全コマンドの文言を `locales` へ移す第 2 波とオンボーディング。
 - **2026-04-24**: `docs/tests.md` の i18n・認証・`ErrorMeta` 系 TC と `spec` §2.7（エラー表示とログ）を同期。`handleError` の診断 JSON とテストランナーの `calendit` 置換を調整（`DEBUG=calendit` と両立）。EventKit **常駐ブリッジ**案を [docs/eventkit-bridge.md](../eventkit-bridge.md) に整理し、v1.2 系バックログへ追加（当面は `macos external`）。
 - **2026-04-24**: EventKit ブリッジ **MVP 実装**（[native/eventkit-bridge/](../../native/eventkit-bridge/) Swift サーバ、`CALENDIT_EVENTKIT_BRIDGE` + [src/core/eventkitHelper.ts](../../src/core/eventkitHelper.ts)）。
-- **2026-04-24**: ブリッジ **`CalenditEventKitBridge.app` 組立**と **LaunchAgent** インストールスクリプト（[spec/history/2026-0424-01.03.md](../../spec/history/2026-0424-01.03.md)）。
-- **2026-04-24**: EventKit **ブリッジ自動採用**（未指定で token+ソケット存在時）、`config set-macos-transport`、`macos bridge start` / `macos setup`、接続リトライ・`OK (bridge)` 表示（[spec/history/2026-0424-01.05.md](../../spec/history/2026-0424-01.05.md)）。
-- **2026-04-24**: `npm` 向け `package.json#version` を [semver](https://semver.org/) 準拠（`2026.4.24` 等）に揃え、`files` 白リスト・`prepack` で tarball を 50MB+ から圧縮。clone 直後は `npm run build` 必須。詳細 [spec/history/2026-0424-01.06.md](../../spec/history/2026-0424-01.06.md)。
-- **2026-04-24**: **`calendit macos bridge build`**（Swift ブリッジ `.app` 組立、`build-app-bundle.sh` 委譲）。[spec/history/2026-0424-01.07.md](../../spec/history/2026-0424-01.07.md)
-- **2026-04-24**: **`calendit macos bridge fetch`**（GitHub 取得・説明+サイズ+確認、任意ビルド）。 [spec/history/2026-0424-01.08.md](../../spec/history/2026-0424-01.08.md)
+- **2026-04-24**: ブリッジ **`CalenditEventKitBridge.app` 組立**と **LaunchAgent** インストールスクリプト（[spec/history/old/2026-0424-01.03.md](../../spec/history/old/2026-0424-01.03.md)）。
+- **2026-04-24**: EventKit **ブリッジ自動採用**（未指定で token+ソケット存在時）、`config set-macos-transport`、`macos bridge start` / `macos setup`、接続リトライ・`OK (bridge)` 表示（[spec/history/old/2026-0424-01.05.md](../../spec/history/old/2026-0424-01.05.md)）。
+- **2026-04-24**: `npm` 向け `package.json#version` を [semver](https://semver.org/) 準拠（`2026.4.24` 等）に揃え、`files` 白リスト・`prepack` で tarball を 50MB+ から圧縮。clone 直後は `npm run build` 必須。詳細 [spec/history/old/2026-0424-01.06.md](../../spec/history/old/2026-0424-01.06.md)。
+- **2026-04-24**: **`calendit macos bridge build`**（Swift ブリッジ `.app` 組立、`build-app-bundle.sh` 委譲）。[spec/history/old/2026-0424-01.07.md](../../spec/history/old/2026-0424-01.07.md)
+- **2026-04-24**: **`calendit macos bridge fetch`**（GitHub 取得・説明+サイズ+確認、任意ビルド）。 [spec/history/old/2026-0424-01.08.md](../../spec/history/old/2026-0424-01.08.md)
 - **2026-04-25**: **ドキュメント再構築**（非エンジニア向け校正・GitHub向け装飾・AIセクション分離）。製品バージョン `1.20260425.03`。 [spec/history/1.20260425.03.md](../../spec/history/1.20260425.03.md)
 - **2026-04-25**: **開発ルールの同期・更新**（メジャーバージョン更新基準の明記、`.cursor` / `.agents` 同期）。製品バージョン `1.20260425.05`。 [spec/history/1.20260425.05.md](../../spec/history/1.20260425.05.md)
+- **2026-04-25**: **`apply` 同期レンジ・Google `timeZone`・移動時 WARN**（`query` 期間パース集約含む）。 [spec/history/1.20260425.04.md](../../spec/history/1.20260425.04.md)
+- **2026-04-25**: **Outlook `cal list` がカレンダーグループ配下も網羅**（Graph の `calendarGroups` + ページング、ID 重複排除）。製品バージョン `1.20260425.06`。 [spec/history/1.20260425.06.md](../../spec/history/1.20260425.06.md)
+- **2026-04-25**: **変更履歴ファイルの命名**: `spec/history` は `[MajorVersion].YYYYmmdd.[Sequence].md`、H1 はファイル名（`.md` 除く）と一致（`.cursor/rules/rule.mdc` §1）。
 
 ---
 

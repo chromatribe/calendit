@@ -1,7 +1,7 @@
 # カレンダー操作CLIツール `calendit` 仕様書 (最新版)
 
 ## バージョン管理
-- **現在のバージョン**: `1.20260425.05` (Beta) — 製品表記。npm の `package.json#version` は [semver](https://semver.org/) 準拠
+- **現在のバージョン**: `1.20260425.06` (Beta) — 製品表記。npm の `package.json#version` は [semver](https://semver.org/) 準拠
 - **最終更新日**: 2026-04-25
 
 ---
@@ -54,6 +54,7 @@ graph TD
 
 #### カレンダー（フォルダ）自体の操作
 - `calendit cal list`: 認証アカウント内の全カレンダー（サブカレンダー含む）を表示。
+- **Outlook**: Microsoft Graph の `GET /me/calendars` に加え、`GET /me/calendarGroups` と各グループの `GET /me/calendarGroups/{id}/calendars` を **`@odata.nextLink` までページング**して取得し、カレンダー ID で**重複排除**して統合する（カレンダーグループ配下のみのユーザー作成カレンダーを取りこぼさない）。
 - `calendit cal add <name>`: 新しいカレンダーを作成。
 - `calendit cal edit <id> --name <new_name>`: カレンダー名を変更。
 - `calendit cal delete <id>`: カレンダーを削除（※安全性に注意）。
