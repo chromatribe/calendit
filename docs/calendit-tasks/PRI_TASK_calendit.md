@@ -103,6 +103,7 @@ crmt       google    primary      user@example.com        OK
 - **2026-04-24**: `npm` 向け `package.json#version` を [semver](https://semver.org/) 準拠（`2026.4.24` 等）に揃え、`files` 白リスト・`prepack` で tarball を 50MB+ から圧縮。clone 直後は `npm run build` 必須。詳細 [spec/history/2026-0424-01.06.md](../../spec/history/2026-0424-01.06.md)。
 - **2026-04-24**: **`calendit macos bridge build`**（Swift ブリッジ `.app` 組立、`build-app-bundle.sh` 委譲）。[spec/history/2026-0424-01.07.md](../../spec/history/2026-0424-01.07.md)
 - **2026-04-24**: **`calendit macos bridge fetch`**（GitHub 取得・説明+サイズ+確認、任意ビルド）。 [spec/history/2026-0424-01.08.md](../../spec/history/2026-0424-01.08.md)
+- **2026-04-25**: **ドキュメント再構築**（非エンジニア向け校正・GitHub向け装飾・AIセクション分離）。製品バージョン `2026.4.29`。 [spec/history/2026-0425-01.03.md](../../spec/history/2026-0425-01.03.md)
 
 ---
 

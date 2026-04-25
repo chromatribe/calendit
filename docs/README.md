@@ -1,90 +1,63 @@
-# calendit ドキュメント（目次）
+# 📚 calendit ドキュメント目次
 
-このフォルダには、**プログラムを書けない人でも順に読めば動かせる説明**から、**コマンドの網羅**、**AI（Cursor / Antigravity 等）向けの機械可読な情報**までを置いています。  
-**npm から入れただけ**の人は、まず **[install.md](./install.md)**（インストール → 次の一手）から。
-
-迷ったら **次の順番** で読んでください。
+このフォルダには、**プログラムの知識がない方**から、**開発者**や**AIエージェント**まで、様々な目的に応じたドキュメントを格納しています。
+迷ったときは、ご自身の目的に合うセクションから読み進めてください。
 
 ---
 
-## 1. まず読む（全体像・目的）
+## 🧍 初めての方・一般ユーザー向け
+まずはここから！インストールからカレンダーの登録までを分かりやすく解説しています。
 
-| 文書 | 誰向け | 内容 |
-|------|--------|------|
-| [ルートの README.md](../README.md) | 全員 | アプリの目的・主な機能・リポジトリでの始め方へのリンク |
-| この `README.md`（いま読んでいるファイル） | 全員 | `docs/` の地図（どれをいつ読むか） |
+| 文書 | 内容 |
+|------|------|
+| 🔰 **[初心者向けガイド](beginner-guide-ja.md)** | **【推奨】非エンジニア向け（日本語）。**<br>インストール、起動確認、カレンダーの登録手順（Google / Outlook / このMac）までをシンプルに解説。 |
+| 🚀 **[Getting Started](getting-started.md)** | 初心者ガイドのさらに詳しい「省略なし版」。クラウドコンソールの詳細な設定や、トラブルシューティングを含みます。 |
+| ⬇️ **[インストール手順](install.md)** | インストールと起動確認だけに絞った簡潔な手順。 |
 
 ---
 
-## 2. 使い方（ゼロからカレンダー登録・動作確認まで）
+## 📖 リファレンス・マニュアル
+コマンドの詳細や、特定のサービスを利用するための設定手順です。
 
 | 文書 | 内容 |
 |------|------|
-| **[install.md](./install.md)** | **インストールから:** `npm install -g` → `calendit --version` → 次のドキュ（初回ラリー / getting-started への導線） |
-| **[beginner-guide-ja.md](./beginner-guide-ja.md)** | **非エンジニア向け（日本語）。** 導入（Node / 入手）→ 起動（バージョン確認）→ **登録**（Google / Outlook / この Mac）に厚めの分量。**再インストール・設定リセット**（§5）。全体の地図とよく詰まる所の表。詳細手順は下の `getting-started` から深掘り |
-| **[getting-started.md](./getting-started.md)** | **最重要（省略なし）。** Node の確認 → 取得 → インストール → ビルド → `calendit` の起動方法 → Google / Outlook / macOS のどれか一方を選んで API 登録 → ログイン → コンテキスト（カレンダー）登録 → 予定の取得・テスト → 自動テスト `npm test` の意味まで、**手順化** |
-
-補助（プロバイダ別のクラウドコンソール操作はこちらが詳しいです）。
-
-| 文書 | 内容 |
-|------|------|
-| [setup_google.md](./setup_google.md) | Google Cloud Console での API 有効化・OAuth クライアント作成 |
-| [setup_outlook.md](./setup_outlook.md) | Microsoft Entra ID でのアプリ登録・権限・リダイレクト URI |
-| [quickstart_google.md](./quickstart_google.md) | Google に絞った短い手順（グローバル `npm install -g` 利用者向け）。**初めての方は [getting-started.md](./getting-started.md) を先に読むことを推奨** |
-| [ux-evaluation.md](./ux-evaluation.md) | **UX 検証:** `git clone` → `npm ci` / `npm test` → `npm run ux:link` または `pack` 経由のグローバル試用 |
-| [publishing.md](./publishing.md) | **npm 公開:** `npm login` → `npm publish`（メンテナー・バージョンの注意） |
+| ⌨️ **[コマンド早見表](commands.md)** | `calendit` のすべてのコマンドとオプション、使い方の例をまとめたチートシート。 |
+| ☁️ **[Google設定ガイド](setup_google.md)** | Google Cloud ConsoleでのAPI有効化やOAuth設定の詳しい手順。 |
+| 🟦 **[Outlook設定ガイド](setup_outlook.md)** | Microsoft Entra IDでのアプリ登録や権限設定の詳しい手順。 |
+| 🍏 **[macOSカレンダー(EventKit)設定](eventkit-bridge.md)** | 「このMacのカレンダー」と連携するための常駐ブリッジや環境変数の解説。 |
 
 ---
 
-## 3. コマンド一覧（リファレンス）
+## 🤖 AI・エージェント向け
+Cursor、GitHub Copilot、その他の自律型AIエージェントに本ツールを操作させるための情報です。
 
 | 文書 | 内容 |
 |------|------|
-| **[commands.md](./commands.md)** | 先頭に **コマンド早見表**、以下にサブコマンドごとのオプション・例 |
+| 💬 **[初回オンボーディングラリー](ai-onboarding-rally.md)** | エージェント向けの対話用プレイブック。分岐と次に実行すべきコマンドの道標。 |
+| 🧠 **[AIエージェント向けリファレンス](for-ai-agents.md)** | リポジトリ構成、環境変数、テストの仕組み、OAuthの注意点など、AIに読ませるための構造化データ。 |
+| 🔍 **[Google特化エージェントメモ](calendit-google.md)** | Google操作に特化したエージェント向けメモ（Cursorルール等用）。 |
 
 ---
 
-## 4. AI（エージェント）向け
+## 💻 開発者向け
+本ツールのソースコードを直接触る、または開発に参加する方向けの情報です。
 
 | 文書 | 内容 |
 |------|------|
-| **[ai-onboarding-rally.md](./ai-onboarding-rally.md)** | 初回ラリー: Google / Outlook / macOS 分岐と次コマンド。npm `-g` 向け [GitHub 上の同文書](https://github.com/chromatribe/calendit/blob/main/docs/ai-onboarding-rally.md) — `calendit onboard` も同趣旨 |
-| **[for-ai-agents.md](./for-ai-agents.md)** | リポジトリ構成、設定パス、環境変数一覧、テストの仕組み、OAuth 時の注意、よくある失敗と読むべきファイル |
-| [calendit-google.md](./calendit-google.md) | Google 操作に特化したエージェント向けメモ（Cursor ルール用フロントマタ付き） |
-| [development.md](./development.md) | アーキテクチャ、エラー階層、テストランナー、`tests.md` の書き方 |
-| [tests.md](./tests.md) | 自律テストケース定義（`npm test` がここを読む） |
+| 🏗️ **[開発ガイド](development.md)** | アーキテクチャの解説、エラー階層、テストランナーの仕組みなど。 |
+| 🧪 **[テストケース定義](tests.md)** | `npm test` が読み込む自律テストケースの定義。 |
+| 🧪 **[UX検証ガイド](ux-evaluation.md)** | ローカル環境での検証手順や、`npm link` による試用手順。 |
+| 📦 **[npm公開手順](publishing.md)** | `npm publish` 実行時のメンテナー向け注意書き。 |
+| 💨 **[手動スモークテスト](manual-local-smoke.md)** | 実APIを利用した手動確認用のチェックリスト。 |
 
 ---
 
-## 5. macOS カレンダー（EventKit）・ブリッジ
+## 📋 プロジェクト管理・仕様
 
 | 文書 | 内容 |
 |------|------|
-| [eventkit-bridge.md](./eventkit-bridge.md) | 常駐ブリッジ、ソケット、`.app` / LaunchAgent、環境変数 |
-| [manual-local-smoke.md](./manual-local-smoke.md) | 実 API・権限・手動スモークのチェックリスト |
-
-ネイティブ実装の README:
-
-| パス | 内容 |
-|------|------|
-| [../native/eventkit-helper/README.md](../native/eventkit-helper/README.md) | EventKit ヘルパーのビルド |
-| [../native/eventkit-bridge/README.md](../native/eventkit-bridge/README.md) | 常駐ブリッジのビルド・`.app` |
-
----
-
-## 6. プロダクト管理・履歴
-
-| 文書 | 内容 |
-|------|------|
-| [roadmap.md](./roadmap.md) | ロードマップ |
-| [changelog.md](./changelog.md) | 変更ログ |
-| [calendit-tasks/](./calendit-tasks/) | 優先タスク・バックログ |
-
----
-
-## 7. 仕様の正（コードとセット）
-
-| 文書 | 内容 |
-|------|------|
-| [../spec/spec.md](../spec/spec.md) | 製品仕様の要約 |
-| [../spec/history/](../spec/history/) | 版ごとの詳細変更履歴 |
+| 📑 **[最新仕様書](../spec/spec.md)** | カレンダー連携の全体設計と仕様要約。 |
+| 🕰️ **[変更履歴](../spec/history/)** | 版ごとの詳細な変更内容。 |
+| 🗺️ **[ロードマップ](roadmap.md)** | 今後の開発計画。 |
+| 📝 **[Changelog](changelog.md)** | 一般向け・ドキュメント変更などのログ。 |
+| ✅ **[タスク管理表](calendit-tasks/)** | 優先タスクとバックログ（`PRI_TASK_calendit.md` 等）。 |
