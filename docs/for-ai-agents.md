@@ -97,7 +97,7 @@
 - `package.json` の `version`  
 - `spec/spec.md` の現在バージョン行  
 - `docs/tests.md` のタイトル行のバージョン  
-- `spec/history/[MajorVersion].YYYYmmdd.[Sequence].md`（ファイル名＝H1 先頭行。例: `1.20260425.06.md` → `# 1.20260425.06`）  
+- `spec/history/[MajorVersion].YYYYmmdd.[Sequence].md`（ファイル名＝H1 先頭行。例: `1.20260425.6.md` → `# 1.20260425.6`。`Sequence` に先頭ゼロを付けない）  
 
 方針は **development.md** の「バージョン管理」節と [.cursor/rules/rule.mdc](../.cursor/rules/rule.mdc) §1 に従う。
 

@@ -46,6 +46,7 @@ npm publish --dry-run
 
 ```bash
 npm view calendit version
+npm view calendit dist-tags
 ```
 
 他人のマシンでは（しばらく反映待ちのあと）:
@@ -54,6 +55,30 @@ npm view calendit version
 npm install -g calendit@<版>
 calendit --version
 ```
+
+グローバル更新だけなら:
+
+```bash
+npm install -g calendit@latest
+calendit --version
+```
+
+### `latest` タグが期待する版を指さないとき
+
+レジストリ上で複数のバージョン形式が混在すると、`npm install -g calendit@latest` が意図しない版になることがあります。必要ならメンテナーが **`latest` を付け替え**ます。
+
+```bash
+npm dist-tag add calendit@<公開した版> latest
+```
+
+## 5. よくある失敗
+
+| 症状 | 対処 |
+|------|------|
+| `npm whoami` が 401 | `npm login`（2FA なら OTP） |
+| `PUT .../calendit` が **404** | 未ログイン・別アカウント・または **`npm owner ls calendit`** に自分が載っていない（オーナーに `npm owner add <あなたのユーザー名> calendit` を依頼） |
+| `version` の自動修正警告 | [SemVer 2.0.0](https://semver.org/) では `MAJOR.MINOR.PATCH` の各数値に**先頭ゼロを付けない**。[`package.json`](../package.json) の `version` を **正規化後**（例: `1.20260425.6`）にしておくと警告を避けられる |
+| 同じ version は再 publish 不可 | 失敗した `--dry-run` でも version が取られた場合は未使用の版へ上げる |
 
 ## 参考
 

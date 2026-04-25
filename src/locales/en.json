@@ -26,7 +26,11 @@
       "googleCredsNotSet": "Google credentials are not set.",
       "googleCredsNotSetHint": "Run `calendit config set-google --id <id> --secret <secret>`.",
       "outlookCredsNotSet": "Outlook credentials are not set.",
-      "outlookCredsNotSetHint": "Run `calendit config set-outlook --id <id>`."
+      "outlookCredsNotSetHint": "Run `calendit config set-outlook --id <id>`.",
+      "outlookNoMsalAccounts": "No Outlook sign-in found in the MSAL cache.",
+      "outlookNoMsalAccountsHint": "Run `calendit auth login outlook --set <context>`.",
+      "outlookAccountMismatch": "No cached Outlook account matches context accountId \"{expected}\". Cached usernames: {cached}",
+      "outlookAccountMismatchHint": "In the browser sign-in UI, choose \"{expected}\" and run `calendit auth login outlook --set <context>` again. You may have signed in with a different Microsoft account."
     },
     "context": {
       "missing": "Context '{name}' was not found.",

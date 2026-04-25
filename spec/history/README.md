@@ -2,5 +2,5 @@
 
 | 場所 | 内容 |
 |------|------|
-| **ルート** | 現在のバージョン名（`[MajorVersion].YYYYmmdd.[Sequence].md`）。[.cursor/rules/rule.mdc](../../.cursor/rules/rule.mdc) §1 のファイル名・H1 ルールに従う。 |
+| **ルート** | 現在のバージョン名（`[MajorVersion].YYYYmmdd.[Sequence].md`）。`Sequence` は **SemVer と同様に先頭ゼロなし**（例: `.6`、`.06` は使わない）。[.cursor/rules/rule.mdc](../../.cursor/rules/rule.mdc) §1 のファイル名・H1 ルールに従う。 |
 | **[`old/`](./old/)** | 旧命名（`YYYY-mmdd-XX.XX.md`）のアーカイブ。過去の参照用として保持。 |

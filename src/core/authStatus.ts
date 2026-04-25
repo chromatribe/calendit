@@ -3,8 +3,9 @@ import type { ContextConfig } from "../types/index.js";
 import type { OutlookCredentials } from "../types/index.js";
 import type { AuthManager } from "./auth.js";
 import { getGoogleTokenFilePath } from "./config.js";
+import { pickOutlookMsalAccount } from "./outlookAccountMatch.js";
 
-export type AuthTokenColumn = "OK" | "NOT LOGGED IN" | "EXPIRED" | "NOT CONFIGURED";
+export type AuthTokenColumn = "OK" | "NOT LOGGED IN" | "EXPIRED" | "NOT CONFIGURED" | "ACCOUNT MISMATCH";
 
 export interface AuthStatusRow {
   context: string;
@@ -49,11 +50,12 @@ export async function evaluateOutlookToken(
   if (accounts.length === 0) {
     return "NOT LOGGED IN";
   }
-  if (!ctx.accountId) {
+  if (!ctx.accountId?.trim()) {
     return "OK";
   }
-  const match = accounts.find((a) => a.username === ctx.accountId || a.homeAccountId === ctx.accountId);
-  return match ? "OK" : "NOT LOGGED IN";
+  const picked = pickOutlookMsalAccount(accounts, ctx.accountId);
+  if (picked) return "OK";
+  return "ACCOUNT MISMATCH";
 }
 
 export function buildAuthStatusRows(

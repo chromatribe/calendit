@@ -36,8 +36,12 @@ export type LocaleKey =
   | "errors.datetime.invalidParseHint"
   | "errors.service.googleCredsNotSet"
   | "errors.service.googleCredsNotSetHint"
+  | "errors.service.outlookAccountMismatch"
+  | "errors.service.outlookAccountMismatchHint"
   | "errors.service.outlookCredsNotSet"
   | "errors.service.outlookCredsNotSetHint"
+  | "errors.service.outlookNoMsalAccounts"
+  | "errors.service.outlookNoMsalAccountsHint"
   | "errors.unknown"
   | "errors.validation.prefix"
   | "eventkit.bridge.bridgeError"
@@ -125,8 +129,12 @@ export const LOCALE_KEYS: readonly LocaleKey[] = [
   "errors.datetime.invalidParseHint",
   "errors.service.googleCredsNotSet",
   "errors.service.googleCredsNotSetHint",
+  "errors.service.outlookAccountMismatch",
+  "errors.service.outlookAccountMismatchHint",
   "errors.service.outlookCredsNotSet",
   "errors.service.outlookCredsNotSetHint",
+  "errors.service.outlookNoMsalAccounts",
+  "errors.service.outlookNoMsalAccountsHint",
   "errors.unknown",
   "errors.validation.prefix",
   "eventkit.bridge.bridgeError",

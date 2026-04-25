@@ -114,7 +114,7 @@ calendit add --summary "Test" --start "tomorrow 10:00" --dry-run
 
 ## バージョン管理
 
-`package.json` の製品バージョンは **`[MajorVersion].YYYYmmdd.[Sequence]`** 形式（例: `1.20260425.06`）。[.cursor/rules/rule.mdc](../.cursor/rules/rule.mdc) §1 に従う。
+`package.json` の製品バージョンは **`[MajorVersion].YYYYmmdd.[Sequence]`** 形式（例: `1.20260425.6`）。[SemVer 2.0.0](https://semver.org/) に従い **各パートは先頭ゼロなしの非負整数**。[.cursor/rules/rule.mdc](../.cursor/rules/rule.mdc) §1 に従う。
 
 変更を加えた際は以下のドキュメントを必ず更新してください:
 

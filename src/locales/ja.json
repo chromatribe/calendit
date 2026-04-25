@@ -26,7 +26,11 @@
       "googleCredsNotSet": "Google の認証情報が未設定です。",
       "googleCredsNotSetHint": "`calendit config set-google --id <id> --secret <secret>` を実行してください。",
       "outlookCredsNotSet": "Outlook の認証情報が未設定です。",
-      "outlookCredsNotSetHint": "`calendit config set-outlook --id <id>` を先に実行してください。"
+      "outlookCredsNotSetHint": "`calendit config set-outlook --id <id>` を先に実行してください。",
+      "outlookNoMsalAccounts": "Outlook 用のサインイン情報が MSAL キャッシュにありません。",
+      "outlookNoMsalAccountsHint": "`calendit auth login outlook --set <コンテキスト名>` を実行してください。",
+      "outlookAccountMismatch": "コンテキストの accountId「{expected}」に一致する Outlook アカウントがキャッシュにありません。現在キャッシュされているユーザー名: {cached}",
+      "outlookAccountMismatchHint": "ブラウザのサインイン画面で「{expected}」を選び直して `calendit auth login outlook --set <コンテキスト名>` を再実行してください。別の Microsoft アカウントでログインしている可能性があります。"
     },
     "context": {
       "missing": "コンテキスト '{name}' が見つかりません。",

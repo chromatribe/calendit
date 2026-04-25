@@ -5,6 +5,13 @@ import { ApiError, AuthError } from "../core/errors.js";
 import { logger } from "../core/logger.js";
 import { graphCalendarItemToCalendarInfo, mergeOutlookCalendarsFirstWins } from "../core/outlookCalendarList.js";
 
+const CALENDAR_LIST_PAGE_SIZE = 100;
+
+function withListTop(path: string): string {
+  const sep = path.includes("?") ? "&" : "?";
+  return `${path}${sep}$top=${CALENDAR_LIST_PAGE_SIZE}`;
+}
+
 export class OutlookCalendarService extends AbstractCalendarService {
   private pca: PublicClientApplication;
   private account: any;
@@ -102,17 +109,25 @@ export class OutlookCalendarService extends AbstractCalendarService {
   async listCalendars(): Promise<CalendarInfo[]> {
     const layers: CalendarInfo[][] = [];
 
-    const topLevel = await this.requestPaginatedList("/me/calendars");
+    const topLevel = await this.requestPaginatedList(withListTop("/me/calendars"));
     layers.push(topLevel.map((item: any) => graphCalendarItemToCalendarInfo(item)));
 
-    const groups = await this.requestPaginatedList("/me/calendarGroups");
+    const groups = await this.requestPaginatedList(withListTop("/me/calendarGroups"));
     for (const group of groups) {
       const groupId = group.id as string;
-      const inGroup = await this.requestPaginatedList(`/me/calendarGroups/${encodeURIComponent(groupId)}/calendars`);
+      const inGroup = await this.requestPaginatedList(
+        withListTop(`/me/calendarGroups/${encodeURIComponent(groupId)}/calendars`),
+      );
       layers.push(inGroup.map((item: any) => graphCalendarItemToCalendarInfo(item)));
     }
 
-    return mergeOutlookCalendarsFirstWins(layers);
+    const merged = mergeOutlookCalendarsFirstWins(layers);
+    logger.debug("Outlook listCalendars merged", {
+      layerSizes: layers.map((l) => l.length),
+      mergedCount: merged.length,
+      names: merged.map((c) => c.name),
+    });
+    return merged;
   }
 
   async createCalendar(name: string): Promise<CalendarInfo> {

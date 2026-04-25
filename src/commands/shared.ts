@@ -4,8 +4,9 @@ import { GoogleCalendarService } from "../services/google.js";
 import { OutlookCalendarService } from "../services/outlook.js";
 import { MockCalendarService } from "../services/mock.js";
 import { MacosCalendarService } from "../services/macos.js";
-import { ConfigError } from "../core/errors.js";
+import { AuthError, ConfigError } from "../core/errors.js";
 import { t } from "../core/i18n.js";
+import { formatOutlookCacheUsernames, pickOutlookMsalAccount } from "../core/outlookAccountMatch.js";
 
 export interface CommandDeps {
   config: ConfigManager;
@@ -97,10 +98,22 @@ export async function getServiceForContext(deps: CommandDeps, contextName?: stri
 
   const pca = await auth.getOutlookClient(creds.id, creds.tenantId);
   const accounts = await pca.getTokenCache().getAllAccounts();
-  // Match by username (email) or homeAccountId; fall back to first account
-  const account = ctx.accountId
-    ? (accounts.find((a) => a.username === ctx.accountId || a.homeAccountId === ctx.accountId) ?? accounts[0])
-    : accounts[0];
+  if (accounts.length === 0) {
+    throw new AuthError(
+      t("errors.service.outlookNoMsalAccounts"),
+      t("errors.service.outlookNoMsalAccountsHint"),
+    );
+  }
+  const account = pickOutlookMsalAccount(accounts, ctx.accountId);
+  if (!account) {
+    throw new AuthError(
+      t("errors.service.outlookAccountMismatch", {
+        expected: ctx.accountId!.trim(),
+        cached: formatOutlookCacheUsernames(accounts),
+      }),
+      t("errors.service.outlookAccountMismatchHint", { expected: ctx.accountId!.trim() }),
+    );
+  }
 
   return {
     service: new OutlookCalendarService(pca, account),
