@@ -42,7 +42,7 @@ calendit onboard
 | `config` | `set-context <名前>` | **カレンダー登録**（`--service` `--calendar` `[--account]`） |
 | `config` | `delete-context <名前>` | コンテキスト削除 |
 | `query` | （本体） | 予定の照会（`--set` `--start` `--end` `--format` `--out`） |
-| `apply` | （本体） | ファイルから予定を反映（`--in` `--set` `--sync` `--dry-run`） |
+| `apply` | （本体） | ファイルから予定を反映（`--in` `--set` `--start` `--end` `--sync` `--dry-run`） |
 | `add` | （本体） | 1 件追加（`--summary` `--start` `[--end]` 等） |
 | `cal` | `list` `add` `delete` | カレンダー一覧・作成・削除（macOS コンテキストでは add/delete 未対応） |
 
@@ -336,11 +336,15 @@ calendit query --set work --start 7d --format md --out week.md
 
 ファイルの内容をカレンダーに反映します。ファイル内に `(ID: ...)` が含まれていれば**更新**、なければ**新規作成**します。
 
+`listEvents` する**取得期間**は、入力に含まれる予定の日付から自動計算した範囲と、`--start` / `--end` で指定した範囲（`query` と同じ日付解釈、例: `7d`、ISO 日付）を**和集合**にとったものです。Markdown を「移動先の日付だけ」に直した直後は自動範囲が狭くなり、既存 ID を取り逃すことがあるため、そのときは `query` で出した期間と同じく `--start` / `--end` を付けて既存行を解決します。
+
 | オプション | 説明 |
 |---|---|
 | `--in <file>` | 入力ファイル（`.md`, `.csv`, `.json`）**必須** |
 | `--set <name>` | 使用するコンテキスト名 |
 | `--calendar <id>` | コンテキストの既定を上書きするカレンダー ID |
+| `--start <iso>` | 任意: 取得期間の開始（`query` と同形式。`--end` と併用。`7d` 等の相対のみで `--end` 省略可） |
+| `--end <iso>` | 任意: 取得期間の終了。`--start` なしに指定できない |
 | `--sync` | ファイルに**ない**予定をカレンダーから削除して完全同期 |
 | `--dry-run` | 実際の変更を行わず差分を表示 |
 
@@ -351,6 +355,7 @@ calendit apply --in week.md --set work --dry-run
 calendit apply --in week.md --set work
 calendit apply --in events.csv --set work
 calendit apply --in week.md --set work --sync --dry-run
+calendit apply --in move.md --set work --start 2026-04-12 --end 2026-05-02 --dry-run
 ```
 
 ---

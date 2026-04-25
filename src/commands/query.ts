@@ -2,9 +2,8 @@ import * as fs from "fs/promises";
 import { Command } from "commander";
 import { formatInTimeZone } from "date-fns-tz";
 import { Formatter } from "../core/formatter.js";
-import { parseDateTime } from "../core/datetime.js";
+import { parseTimeRangeForQuery } from "../core/timeRangeForQuery.js";
 import { CommandDeps, getServiceForContext } from "./shared.js";
-import { ValidationError } from "../core/errors.js";
 import { logger } from "../core/logger.js";
 
 export function registerQueryCommand(program: Command, deps: CommandDeps) {
@@ -23,28 +22,7 @@ export function registerQueryCommand(program: Command, deps: CommandDeps) {
       const calendarId = options.calendar || ctxCalId;
 
       const now = new Date();
-      let start: Date;
-      let end: Date;
-
-      if (options.start && /^\d+[dwm]$/.test(options.start)) {
-        start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const amount = parseInt(options.start, 10);
-        const unit = options.start.slice(-1);
-        const ms =
-          unit === "d"
-            ? amount * 24 * 3600 * 1000
-            : unit === "w"
-              ? amount * 7 * 24 * 3600 * 1000
-              : amount * 30 * 24 * 3600 * 1000;
-        end = new Date(start.getTime() + ms);
-      } else {
-        start = parseDateTime(options.start);
-        end = options.end ? parseDateTime(options.end) : new Date(start.getTime() + 24 * 60 * 60 * 1000);
-      }
-
-      if (end <= start) {
-        throw new ValidationError("Invalid time range: end must be after start.");
-      }
+      const { start, end } = parseTimeRangeForQuery(options.start, options.end, now);
 
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const offset = formatInTimeZone(new Date(), timeZone, "XXX");

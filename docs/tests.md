@@ -1,4 +1,4 @@
-# calendit テストケース & 期待動作 (v2026-0424-01.08)
+# calendit テストケース & 期待動作 (v2026-0425-01.02)
 
 このドキュメントでは、ツールの品質を担保するためのテストケースを定義します。  
 `src/test_runner.ts` は本ファイルを解析し、記載されたコマンドの出力に期待文字列が含まれるかを検証します。
@@ -15,7 +15,7 @@
 | 2.4 安全性 | `TC-APPLY-04`, `TC-CAL-02`, `TC-ERR-04`, `TC-ERR-05` |
 | 2.5 入出力フォーマット | `TC-QRY-04`, `TC-QRY-05`, `TC-FORMAT-*` |
 | 4. コンテキスト | `TC-CTX-*` |
-| 5. 同期ロジック | `TC-APPLY-01`〜`TC-APPLY-04`, `TC-LIVE-23` |
+| 5. 同期ロジック | `TC-APPLY-01`〜`TC-APPLY-06`, `TC-LIVE-23` |
 
 ## テスト技法ラベル凡例
 
@@ -363,6 +363,22 @@ calendit apply --set work --in tests/data/tc_apply_sync.md --sync --dry-run
 ```
 ```expect
 Applying changes to
+```
+
+### TC-APPLY-05 [ST]: 日付移動のみ（取得範囲外だと新規扱い＋警告）
+```sh
+calendit apply --set work --in tests/data/tc_apply_move_target_only.md --dry-run
+```
+```expect
+was not found in the fetched range
+```
+
+### TC-APPLY-06 [ST]: 日付移動（`--start` / `--end` で既存 ID を解決して更新）
+```sh
+calendit apply --set work --in tests/data/tc_apply_move_target_only.md --start 2026-04-12 --end 2026-04-20 --dry-run
+```
+```expect
+Updated (1):
 ```
 
 ---

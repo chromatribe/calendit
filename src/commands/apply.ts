@@ -6,6 +6,11 @@ import { Applier } from "../core/applier.js";
 import { CommandDeps, getServiceForContext } from "./shared.js";
 import { ValidationError } from "../core/errors.js";
 import { logger } from "../core/logger.js";
+import {
+  computeInputAutoRange,
+  mergeApplySyncRanges,
+  parseOptionalTimeRangeForApply,
+} from "../core/timeRangeForQuery.js";
 
 const COLOR_RESET = "\x1b[0m";
 const COLOR_GREEN = "\x1b[32m";
@@ -21,7 +26,24 @@ export function registerApplyCommand(program: Command, deps: CommandDeps) {
     .option("--calendar <id>", "Explicit Calendar ID")
     .option("--sync", "Delete events not in the file", false)
     .option("--dry-run", "Preview changes without applying", false)
-    .action(async (options: { in?: string; set?: string; calendar?: string; sync: boolean; dryRun: boolean }) => {
+    .option(
+      "--start <iso>",
+      "Optional: widen fetch range (same as query: YYYY-MM-DD, 7d, today, etc.). Use with --end to include events outside the file's dates (e.g. for moves).",
+    )
+    .option(
+      "--end <iso>",
+      "Optional: end of fetch range. Required when using --start unless start is a relative range (e.g. 7d).",
+    )
+    .action(
+      async (options: {
+        in?: string;
+        set?: string;
+        calendar?: string;
+        start?: string;
+        end?: string;
+        sync: boolean;
+        dryRun: boolean;
+      }) => {
       if (!options.in) {
         throw new ValidationError("Input file required.", "Use --in <file> to specify input.");
       }
@@ -46,12 +68,20 @@ export function registerApplyCommand(program: Command, deps: CommandDeps) {
 
       const applier = new Applier(service);
 
+      const now = new Date();
+      const autoR = computeInputAutoRange(inputEvents);
+      const cliR = parseOptionalTimeRangeForApply(options.start, options.end, now);
+      const range = mergeApplySyncRanges(autoR, cliR);
+      if (range) {
+        logger.info(`Sync range: ${range.start.toISOString()} to ${range.end.toISOString()}`);
+      }
+
       if (options.dryRun) {
         logger.info("[DRY RUN - 実際の変更は行いません]");
       }
       logger.info(`Applying changes to ${calendarId}...`);
 
-      const results = await applier.apply(calendarId, inputEvents, undefined, {
+      const results = await applier.apply(calendarId, inputEvents, range, {
         dryRun: options.dryRun,
         sync: options.sync,
       });

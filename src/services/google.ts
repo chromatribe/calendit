@@ -7,6 +7,10 @@ import { logger } from "../core/logger.js";
 export class GoogleCalendarService extends AbstractCalendarService {
   private calendar: calendar_v3.Calendar;
 
+  private static localTimeZone(): string {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+
   constructor(auth: any) {
     super();
     this.calendar = google.calendar({ version: "v3", auth });
@@ -99,12 +103,13 @@ export class GoogleCalendarService extends AbstractCalendarService {
 
   async createEvent(calendarId: string, event: Omit<CalendarEvent, "id" | "service" | "calendarId">): Promise<CalendarEvent> {
     try {
+      const tz = GoogleCalendarService.localTimeZone();
       const res = await this.calendar.events.insert({
         calendarId,
         requestBody: {
           summary: event.summary,
-          start: { dateTime: event.start },
-          end: { dateTime: event.end },
+          start: { dateTime: event.start, timeZone: tz },
+          end: { dateTime: event.end, timeZone: tz },
           location: event.location,
           description: event.description,
         },
@@ -125,13 +130,14 @@ export class GoogleCalendarService extends AbstractCalendarService {
 
   async updateEvent(calendarId: string, eventId: string, event: Partial<CalendarEvent>): Promise<CalendarEvent> {
     try {
+      const tz = GoogleCalendarService.localTimeZone();
       const res = await this.calendar.events.patch({
         calendarId,
         eventId,
         requestBody: {
           summary: event.summary,
-          start: event.start ? { dateTime: event.start } : undefined,
-          end: event.end ? { dateTime: event.end } : undefined,
+          start: event.start ? { dateTime: event.start, timeZone: tz } : undefined,
+          end: event.end ? { dateTime: event.end, timeZone: tz } : undefined,
           location: event.location,
           description: event.description,
         },

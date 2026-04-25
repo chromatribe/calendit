@@ -57,33 +57,6 @@ export class Applier {
 
     let range = timerange;
 
-    if (!range && inputEvents.length > 0) {
-      // 入力された予定から期間を自動計算
-      let minStart = Infinity;
-      let maxEnd = -Infinity;
-
-      for (const event of inputEvents) {
-        if (event.start) {
-          const s = new Date(event.start).getTime();
-          if (s < minStart) minStart = s;
-        }
-        if (event.end) {
-          const e = new Date(event.end).getTime();
-          if (e > maxEnd) maxEnd = e;
-        }
-      }
-
-      if (minStart !== Infinity && maxEnd !== -Infinity) {
-        // 当日の開始・終了までバッファを持たせる
-        const start = new Date(minStart);
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(maxEnd);
-        end.setHours(23, 59, 59, 999);
-        range = { start, end };
-        logger.info(`Auto-detected sync range: ${range.start.toISOString()} to ${range.end.toISOString()}`);
-      }
-    }
-
     if (!range) {
       if (options.sync) {
         const now = new Date();
@@ -138,6 +111,12 @@ export class Applier {
         }
         existingMap.delete(input.id); // 処理済みとして削除
       } else {
+        if (input.id) {
+          logger.warn(
+            `Event ID "${input.id}" (${input.summary || "(no title)"}) was not found in the fetched range — creating a new event. ` +
+              "If you meant to update an existing event (e.g. after moving it to another day in the file), widen the fetch window with `calendit apply --start … --end …`.",
+          );
+        }
         // 新規作成
         if (options.dryRun) {
           logger.info(`[Dry Run] Create: ${input.summary}`);
