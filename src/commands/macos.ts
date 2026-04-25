@@ -12,6 +12,7 @@ import {
   eventkitDoctorJson,
   eventkitListCalendarsJson,
   hasEventkitTransport,
+  resolveBridgeSocketPathForRun,
   resolveEventkitHelperPath,
 } from "../core/eventkitHelper.js";
 import {
@@ -24,6 +25,7 @@ import {
 import {
   installBuiltBridgeAppToSystemApplications,
   installBuiltBridgeAppToUserApplications,
+  recordLastOpenedBridgeAppBundle,
   resolveEventkitBridgeAppBundlePath,
   resolveEventkitBridgeRepoPath,
 } from "../core/macosBridgeApp.js";
@@ -86,13 +88,24 @@ async function finalizeBridgeInstallCopies(bridgeRoot: string): Promise<void> {
     logger.warn(t("macos.bridge.buildCopyUserWarn", { message: user.message ?? "" }));
   }
   if (process.env.CALENDIT_BRIDGE_BUILD_SKIP_SYSTEM_APP?.trim() === "1") {
+    if (user.ok) {
+      recordLastOpenedBridgeAppBundle(user.dest);
+    } else {
+      recordLastOpenedBridgeAppBundle(bundlePath);
+    }
     return;
   }
   const sys = await installBuiltBridgeAppToSystemApplications(bundlePath);
   if (sys.ok) {
     logger.info(t("macos.bridge.buildCopySystemOk", { path: sys.dest }));
+    recordLastOpenedBridgeAppBundle(sys.dest);
   } else {
-    logger.info(t("macos.bridge.buildCopySystemSkipped", { message: sys.message ?? "" }));
+    logger.warn(t("macos.bridge.buildCopySystemSkipped", { message: sys.message ?? "" }));
+    if (user.ok) {
+      recordLastOpenedBridgeAppBundle(user.dest);
+    } else {
+      recordLastOpenedBridgeAppBundle(bundlePath);
+    }
   }
 }
 
@@ -266,6 +279,7 @@ export function registerMacosCommands(program: Command, deps: CommandDeps) {
       }
       try {
         await execFileAsync("/usr/bin/open", [p], { shell: false });
+        recordLastOpenedBridgeAppBundle(p);
         logger.info(t("macos.bridge.opened", { path: p }));
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
@@ -378,8 +392,20 @@ export function registerMacosCommands(program: Command, deps: CommandDeps) {
         writeStdoutLine("macOS のみ対応です。現在の OS では EventKit ヘルパーを使用できません。");
         return;
       }
+      const socketPath = resolveBridgeSocketPathForRun();
       const p = resolveEventkitHelperPath();
-      writeStdoutLine(`Helper path: ${p ?? "(not found, OK if using bridge only)"}`);
+      if (socketPath) {
+        writeStdoutLine(`EventKit bridge socket: ${socketPath}`);
+        const appPath = resolveEventkitBridgeAppBundlePath();
+        if (appPath) {
+          writeStdoutLine(t("macos.doctor.bridgeAppResolved", { path: appPath }));
+        } else {
+          writeStdoutLine(t("macos.doctor.bridgeAppUnresolved"));
+        }
+      }
+      writeStdoutLine(
+        `eventkit-helper: ${p ?? (socketPath ? "(not used — doctor uses the bridge above)" : "(not found — build from repo or set CALENDIT_EVENTKIT_HELPER)")}`,
+      );
       if (!hasEventkitTransport()) {
         writeStdoutLine("EventKit: no helper and no local bridge. Build helper or start CalenditEventKitBridge.app.");
         return;
@@ -389,7 +415,11 @@ export function registerMacosCommands(program: Command, deps: CommandDeps) {
         writeStdoutLine(JSON.stringify(j, null, 2));
         if (j.calendarAccess === "denied" && isLikelyIdeIntegratedTerminal()) {
           writeStdoutLine("");
-          writeStdoutLine(t("macos.external.suggestionWhenDenied"));
+          if (j.transport === "bridge") {
+            writeStdoutLine(t("macos.doctor.bridgeDeniedHint"));
+          } else {
+            writeStdoutLine(t("macos.external.suggestionWhenDenied"));
+          }
         }
       } catch (e) {
         logger.error(`doctor 失敗: ${e instanceof Error ? e.message : String(e)}`);

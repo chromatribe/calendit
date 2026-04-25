@@ -111,6 +111,7 @@ crmt       google    primary      user@example.com        OK
 - **2026-04-25**: **変更履歴ファイルの命名**: `spec/history` は `[MajorVersion].YYYYmmdd.[Sequence].md`、H1 はファイル名（`.md` 除く）と一致（`.cursor/rules/rule.mdc` §1）。
 - **2026-04-26**: **Outlook 複数 MSAL アカウント時の誤フォールバック修正**（`accountId` 照合の正規化、`ACCOUNT MISMATCH`、一致なし時は API 呼び出し前にエラー）。製品バージョン `1.20260426.1`。 [spec/history/1.20260426.1.md](../../spec/history/1.20260426.1.md)
 - **2026-04-26**: **EventKit ブリッジ**: `bridge start` が fetch/build 先の `.build/.app` を検出、ビルド後に `~/Applications`・`/Applications` へコピー試行（env でスキップ可）。製品バージョン `1.20260426.2`。 [spec/history/1.20260426.2.md](../../spec/history/1.20260426.2.md)
+- **2026-04-26**: **`macos doctor` / eventkit-helper パス**: パッケージルートからのヘルパー解決、`doctor` でブリッジソケット表示と bridge+d denied 時の TCC ヒント。製品バージョン `1.20260426.3`。 [spec/history/1.20260426.3.md](../../spec/history/1.20260426.3.md)
 
 ---
 

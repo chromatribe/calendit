@@ -80,6 +80,9 @@ export type LocaleKey =
   | "macos.bridge.notFound"
   | "macos.bridge.openFailed"
   | "macos.bridge.opened"
+  | "macos.doctor.bridgeAppResolved"
+  | "macos.doctor.bridgeAppUnresolved"
+  | "macos.doctor.bridgeDeniedHint"
   | "macos.external.badSub"
   | "macos.external.badSubHint"
   | "macos.external.jsonOnlyForList"
@@ -178,6 +181,9 @@ export const LOCALE_KEYS: readonly LocaleKey[] = [
   "macos.bridge.notFound",
   "macos.bridge.openFailed",
   "macos.bridge.opened",
+  "macos.doctor.bridgeAppResolved",
+  "macos.doctor.bridgeAppUnresolved",
+  "macos.doctor.bridgeDeniedHint",
   "macos.external.badSub",
   "macos.external.badSubHint",
   "macos.external.jsonOnlyForList",

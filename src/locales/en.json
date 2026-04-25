@@ -124,6 +124,11 @@
       "startBridgePrompt": "The bridge does not seem to be running. Open CalenditEventKitBridge.app now?",
       "canceled": "Setup canceled."
     },
+    "doctor": {
+      "bridgeDeniedHint": "Using the bridge, but calendar access is denied. Check System Settings → Privacy & Security → Calendars and grant **CalenditEventKitBridge** full access (TCC applies to the .app, not this terminal).",
+      "bridgeAppResolved": "CalenditEventKitBridge.app (same resolution as `macos bridge start`): {path}",
+      "bridgeAppUnresolved": "CalenditEventKitBridge.app: could not resolve a bundle path (run `macos bridge build` / `bridge start`, or set CALENDIT_EVENTKIT_BRIDGE_APP)."
+    },
     "external": {
       "onlyDarwin": "macOS only.",
       "badSub": "Subcommand must be `doctor`, `list-calendars`, or `shell`.",

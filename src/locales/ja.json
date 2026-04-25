@@ -124,6 +124,11 @@
       "startBridgePrompt": "ブリッジが起動していない可能性があります。CalenditEventKitBridge.app を開きますか？",
       "canceled": "セットアップを中止しました。"
     },
+    "doctor": {
+      "bridgeDeniedHint": "ブリッジ経由ですがカレンダーが拒否されています。システム設定 → プライバシーとセキュリティ → カレンダー で **CalenditEventKitBridge** のフルアクセスを確認してください（このターミナルではなく .app 側の許可です）。",
+      "bridgeAppResolved": "CalenditEventKitBridge.app（`macos bridge start` と同じ候補解決）: {path}",
+      "bridgeAppUnresolved": "CalenditEventKitBridge.app: 候補を解決できませんでした（`macos bridge build` / `bridge start`、または CALENDIT_EVENTKIT_BRIDGE_APP を設定してください）。"
+    },
     "external": {
       "onlyDarwin": "macOS のみ対応です。",
       "badSub": "サブコマンドは `doctor` / `list-calendars` / `shell` です。",

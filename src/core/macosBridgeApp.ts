@@ -2,40 +2,44 @@ import * as fs from "fs";
 import * as fsp from "fs/promises";
 import * as os from "os";
 import * as path from "path";
-import { fileURLToPath } from "url";
+import { resolveCalenditPackageRootFromModule } from "./calenditInstallRoot.js";
 import { defaultCalenditDataDir } from "./eventkitHelper.js";
 
 function isAppBundle(p: string): boolean {
   return p.endsWith(".app") && fs.existsSync(path.join(p, "Contents/Info.plist"));
 }
 
-/**
- * Directory of the installed `calendit` npm package (where package.json with name "calendit" lives), or null.
- * Used to locate `native/eventkit-bridge` in a full clone; absent from the published npm tarball.
- */
-export function resolveCalenditPackageRootFromModule(): string | null {
-  let dir = path.dirname(fileURLToPath(import.meta.url));
-  for (let i = 0; i < 20; i++) {
-    const pkg = path.join(dir, "package.json");
-    if (fs.existsSync(pkg)) {
-      try {
-        const raw = fs.readFileSync(pkg, "utf8");
-        const j = JSON.parse(raw) as { name?: string };
-        if (j.name === "calendit") {
-          return dir;
-        }
-      } catch {
-        // ignore
-      }
+/** Last bundle opened or installed by calendit (fallback when search paths miss). */
+const BRIDGE_BUNDLE_PATH_CACHE = "eventkit-bridge-bundle-path.txt";
+
+function readCachedBridgeAppBundlePath(): string | null {
+  const f = path.join(defaultCalenditDataDir(), BRIDGE_BUNDLE_PATH_CACHE);
+  try {
+    const raw = fs.readFileSync(f, "utf8").trim();
+    if (raw && isAppBundle(raw)) {
+      return raw;
     }
-    const parent = path.dirname(dir);
-    if (parent === dir) {
-      return null;
-    }
-    dir = parent;
+  } catch {
+    /* missing or unreadable */
   }
   return null;
 }
+
+/** Persist which `.app` calendit last opened or installed (helps doctor after cwd / helper path changes). */
+export function recordLastOpenedBridgeAppBundle(appPath: string): void {
+  const resolved = path.resolve(appPath);
+  if (!isAppBundle(resolved)) {
+    return;
+  }
+  try {
+    fs.mkdirSync(defaultCalenditDataDir(), { recursive: true });
+    fs.writeFileSync(path.join(defaultCalenditDataDir(), BRIDGE_BUNDLE_PATH_CACHE), `${resolved}\n`, "utf8");
+  } catch {
+    /* best-effort */
+  }
+}
+
+export { resolveCalenditPackageRootFromModule } from "./calenditInstallRoot.js";
 
 /** `native/eventkit-bridge` with `Package.swift` (source tree), or null. */
 export function resolveEventkitBridgeRepoPath(): string | null {
@@ -63,14 +67,23 @@ export function resolveEventkitBridgeRepoPath(): string | null {
 }
 
 /**
- * Resolve the CalenditEventKitBridge .app path for `calendit macos bridge start`.
- * Order: CALENDIT_EVENTKIT_BRIDGE_APP, Package.swift 隣の `.build/`（fetch / clone / BRIDGE_ROOT）,
- * ~/Applications, /Applications, cwd 配下の開発用 `.build/`。
+ * Resolve the CalenditEventKitBridge .app path for `calendit macos bridge start` / doctor.
+ * Order: `CALENDIT_EVENTKIT_BRIDGE_APP`, then `/Applications` and `~/Applications` (stable TCC targets),
+ * then `Package.swift` 隣の `.build/`（fetch / clone / `CALENDIT_EVENTKIT_BRIDGE_ROOT`）,
+ * then cwd 配下の開発用 `.build/`, finally the path last recorded by `recordLastOpenedBridgeAppBundle` if still present.
  */
 export function resolveEventkitBridgeAppBundlePath(): string | null {
   const fromEnv = process.env.CALENDIT_EVENTKIT_BRIDGE_APP?.trim();
   if (fromEnv && isAppBundle(fromEnv)) {
-    return fromEnv;
+    return path.resolve(fromEnv);
+  }
+  const global = "/Applications/CalenditEventKitBridge.app";
+  if (isAppBundle(global)) {
+    return global;
+  }
+  const homeApps = path.join(os.homedir(), "Applications/CalenditEventKitBridge.app");
+  if (isAppBundle(homeApps)) {
+    return homeApps;
   }
   const bridgeRoot = resolveEventkitBridgeRepoPath();
   if (bridgeRoot) {
@@ -79,19 +92,11 @@ export function resolveEventkitBridgeAppBundlePath(): string | null {
       return fromRepoBuild;
     }
   }
-  const homeApps = path.join(os.homedir(), "Applications/CalenditEventKitBridge.app");
-  if (isAppBundle(homeApps)) {
-    return homeApps;
-  }
-  const global = "/Applications/CalenditEventKitBridge.app";
-  if (isAppBundle(global)) {
-    return global;
-  }
   const dev = path.join(process.cwd(), "native/eventkit-bridge/.build/CalenditEventKitBridge.app");
   if (isAppBundle(dev)) {
     return dev;
   }
-  return null;
+  return readCachedBridgeAppBundlePath();
 }
 
 /** `~/Applications/CalenditEventKitBridge.app` へ上書きコピー（TCC 用の安定パス向け）。 */

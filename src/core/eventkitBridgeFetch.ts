@@ -4,7 +4,7 @@ import { promisify } from "util";
 import * as fs from "fs";
 import * as path from "path";
 import { defaultCalenditDataDir } from "./eventkitHelper.js";
-import { resolveCalenditPackageRootFromModule } from "./macosBridgeApp.js";
+import { resolveCalenditPackageRootFromModule } from "./calenditInstallRoot.js";
 
 const execFileAsync = promisify(execFile);
 const fsp = fs.promises;

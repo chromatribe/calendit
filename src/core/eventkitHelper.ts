@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as net from "net";
 import * as os from "os";
 import * as path from "path";
+import { resolveCalenditPackageRootFromModule } from "./calenditInstallRoot.js";
 import { t } from "./i18n.js";
 
 /** Same directory layout as native/eventkit-bridge (Swift). */
@@ -334,7 +335,7 @@ async function runEventkitHelperSpawn(
   });
 }
 
-/** 優先: CALENDIT_EVENTKIT_HELPER → リポジトリ直下の release ビルド */
+/** 優先: CALENDIT_EVENTKIT_HELPER → cwd 配下の release → calendit パッケージルート配下（cwd が fetch 先などでもリポジトリ版を拾える） */
 export function resolveEventkitHelperPath(): string | null {
   const fromEnv = process.env.CALENDIT_EVENTKIT_HELPER?.trim();
   if (fromEnv && fs.existsSync(fromEnv)) {
@@ -350,6 +351,13 @@ export function resolveEventkitHelperPath(): string | null {
   );
   if (fs.existsSync(rel)) {
     return rel;
+  }
+  const pkgRoot = resolveCalenditPackageRootFromModule();
+  if (pkgRoot) {
+    const fromPkg = path.join(pkgRoot, "native", "eventkit-helper", ".build", "release", "eventkit-helper");
+    if (fs.existsSync(fromPkg)) {
+      return fromPkg;
+    }
   }
   return null;
 }

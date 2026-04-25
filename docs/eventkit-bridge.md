@@ -101,9 +101,10 @@
 
 1. **[src/core/eventkitHelper.ts](../src/core/eventkitHelper.ts)** — 既定: macOS で同じデータディレクトリに **`bridge.token` かつ有効な** `eventkit-bridge.sock` があると**自動でブリッジ**。`CALENDIT_EVENTKIT_BRIDGE=0` 等は常に子プロセス `eventkit-helper`。`=1` / `unix:…` は従来どおり明示。`config.json` の `eventkit.defaultTransport` や **`CALENDIT_EVENTKIT_BRIDGE_FALLBACK=1`** によるヘルパー退避の意味は [commands.md](./commands.md) 参照。
 2. **起動** — **`calendit macos bridge start`** で .app の `open`、または [getting-started.md](./getting-started.md) §9.0 / `calendit macos setup`。
-3. **`macos doctor`**: ブリッジ経由時は JSON に `transport":"bridge"`（`query` / `accounts status` と同じ解決が走る）。
+3. **`.app` の探索** — `CALENDIT_EVENTKIT_BRIDGE_APP` の次に **`/Applications` → `~/Applications` → fetch/リポジトリの `.build/CalenditEventKitBridge.app` → `cwd` 配下の開発用 `.build`**。いずれも無いときは、前回 `bridge start` 成功時または **`macos bridge build` 後のコピー**で書き込んだ **`eventkit-bridge-bundle-path.txt`**（`bridge.token` と同じデータディレクトリ）が指すバンドルを試す。
+4. **`macos doctor`**: ブリッジ経由時は JSON に `transport":"bridge"`（`query` / `accounts status` と同じ解決が走る）。ソケット利用時は上記と同じ順で **`.app` の候補パス**を表示する。
 
-4. **テスト**: CI はブリッジなしのまま。結合は下記手動チェックリスト。
+5. **テスト**: CI はブリッジなしのまま。結合は下記手動チェックリスト。
 
 ---
 
