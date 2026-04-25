@@ -112,6 +112,22 @@ crmt       google    primary      user@example.com        OK
 - **2026-04-26**: **Outlook 複数 MSAL アカウント時の誤フォールバック修正**（`accountId` 照合の正規化、`ACCOUNT MISMATCH`、一致なし時は API 呼び出し前にエラー）。製品バージョン `1.20260426.1`。 [spec/history/1.20260426.1.md](../../spec/history/1.20260426.1.md)
 - **2026-04-26**: **EventKit ブリッジ**: `bridge start` が fetch/build 先の `.build/.app` を検出、ビルド後に `~/Applications`・`/Applications` へコピー試行（env でスキップ可）。製品バージョン `1.20260426.2`。 [spec/history/1.20260426.2.md](../../spec/history/1.20260426.2.md)
 - **2026-04-26**: **`macos doctor` / eventkit-helper パス**: パッケージルートからのヘルパー解決、`doctor` でブリッジソケット表示と bridge+d denied 時の TCC ヒント。製品バージョン `1.20260426.3`。 [spec/history/1.20260426.3.md](../../spec/history/1.20260426.3.md)
+- **2026-04-26**: **テスト環境の構築・シナリオ策定**: Google/Outlook/macOS の全テスト用コンテキスト設定完了。徹底テスト用シナリオ集（[docs/comprehensive-test-scenarios.md](../comprehensive-test-scenarios.md)）を策定。
+
+---
+
+## 🚀 次回以降のタスク
+
+### 1. 徹底テストの実施とブラッシュアップ
+- [ ] **シナリオ A-1 (リスケ)**: 曖昧な指定からの時刻更新テスト
+- [ ] **シナリオ A-2 (横断検索)**: Google × Outlook の空き時間マージ
+- [ ] **シナリオ T-1 (デッドライン)**: Unified Todo からの締切プロット
+- [ ] **シナリオ T-2 (作業枠確保)**: 空き時間への自動アサイン
+- [ ] **AI振る舞いの言語化**: テスト結果に基づき [docs/for-ai-agents.md](../for-ai-agents.md) を更新
+
+### 2. インフラ・公開準備
+- [ ] Homebrew tap 対応の検討
+- [ ] `query` の対話フィルタ（`fzf` 風）実装検討
 
 ---
 
